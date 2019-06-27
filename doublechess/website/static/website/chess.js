@@ -35,8 +35,11 @@ const chessboard = [
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
 
-const renderPieces = () => {
 
+
+
+
+const renderPieces = () => {
     for(row_number = 0; row_number < 8; row_number++){
         for(col_number = 0; col_number < 8; col_number++){
 
@@ -46,42 +49,49 @@ const renderPieces = () => {
                 square.removeChild(square.firstChild)
             }
 
-            piece = document.createElement("div")
-            switch(chessboard[row_number][col_number].type){
-
-                case types.none:
-                    break
-                case types.pawn:
-                    piece.innerHTML = "P"
-                    break
-                case types.knight:
-                    piece.innerHTML = "N"
-                    break
-                case types.bishop:
-                    piece.innerHTML = "B"
-                    break
-                case types.rook:
-                    piece.innerHTML = "R"
-                    break
-                case types.queen:
-                    piece.innerHTML = "Q"
-                    break
-                case types.king:
-                    piece.innerHTML = "K"
-                    break
-            }
-
-            if(chessboard[row_number][col_number].color === colors.white){
-                piece.style.color = "green"
-            }else{
-                piece.style.color = "red"
-            }
-            piece.style.cursor = "default"
-
+            piece = makePiece(chessboard[row_number][col_number])
             square.appendChild(piece)
         }
     }
 }
+
+// Takes object of the class piece and returns html element 
+const makePiece = piece => {
+
+    htmlPiece = document.createElement("div")
+    switch(piece.type){
+        
+        case types.none:
+            break
+        case types.pawn:
+            htmlPiece.innerHTML = "P"
+            break
+        case types.knight:
+            htmlPiece.innerHTML = "N"
+            break
+        case types.bishop:
+            htmlPiece.innerHTML = "B"
+            break
+        case types.rook:
+            htmlPiece.innerHTML = "R"
+            break
+        case types.queen:
+            htmlPiece.innerHTML = "Q"
+            break
+        case types.king:
+            htmlPiece.innerHTML = "K"
+            break
+    }
+
+    if(piece.color === colors.white){
+        htmlPiece.style.color = "green"
+    }else{
+        htmlPiece.style.color = "red"
+    }
+    htmlPiece.style.cursor = "default"
+    return htmlPiece
+}
+
 
 const renderChessboard = () => {
 
@@ -118,7 +128,7 @@ const renderChessboard = () => {
 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded',  () => {
     renderChessboard()
     renderPieces()
 });
