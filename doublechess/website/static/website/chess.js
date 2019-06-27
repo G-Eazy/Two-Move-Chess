@@ -1,3 +1,4 @@
+// enum for types
 const types = {
     'none':0,
     'pawn': 1,
@@ -8,11 +9,13 @@ const types = {
     'king':6
 }
 
+// enum for colors
 const colors = {
     'white':0,
     'black':1
 }
 
+// Piece class, containing fields type and color.
 class Piece{
     constructor(type, color = null){
         this.type = type
@@ -38,7 +41,7 @@ const chessboard = [
 
 
 
-
+// Renders the pieces the the chessboard datastructure to the html document
 const renderPieces = () => {
     for(row_number = 0; row_number < 8; row_number++){
         for(col_number = 0; col_number < 8; col_number++){
@@ -93,6 +96,7 @@ const makePiece = piece => {
 }
 
 
+// Makes a chessboard table, and attaches it to the container chess-board
 const renderChessboard = () => {
 
     let chess_board = document.getElementById("chess-board")
@@ -128,6 +132,7 @@ const renderChessboard = () => {
 
 }
 
+// Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded',  () => {
     renderChessboard()
     renderPieces()
