@@ -1,0 +1,8 @@
+# python cache files
+*/__pycache__/*
+
+# My own files i want to ignore
+*.ignore
+
+#django generated file
+*.sqlite3
