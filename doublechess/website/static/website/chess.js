@@ -44,7 +44,7 @@ const renderPieces = () => {
     for(row_number = 0; row_number < 8; row_number++){
         for(col_number = 0; col_number < 8; col_number++){
 
-            id = row_number + "" + col_number
+            id = row_number + '' + col_number
             square = document.getElementById(id)
             while(square.firstChild){
                 square.removeChild(square.firstChild)
@@ -59,35 +59,35 @@ const renderPieces = () => {
 // Takes object of the class piece and returns html element 
 const makePiece = piece => {
 
-    let htmlPiece = document.createElement("div")
+    let htmlPiece = document.createElement('div')
 
     if(piece.color === null){
         return htmlPiece
     }
 
-    htmlPiece.className = "chess-piece"
+    htmlPiece.className = 'chess-piece'
 
     if(piece.color === colors.white){
         switch(piece.type){
             case types.none:
                 break
             case types.pawn:
-                htmlPiece.className += " white_pawn"
+                htmlPiece.className += ' white_pawn'
                 break
             case types.knight:
-                htmlPiece.className += " white_knight"
+                htmlPiece.className += ' white_knight'
                 break
             case types.bishop:
-                htmlPiece.className += " white_bishop"
+                htmlPiece.className += ' white_bishop'
                 break
             case types.rook:
-                htmlPiece.className += " white_rook"
+                htmlPiece.className += ' white_rook'
                 break
             case types.queen:
-                htmlPiece.className += " white_queen"
+                htmlPiece.className += ' white_queen'
                 break
             case types.king:
-                htmlPiece.className += " white_king"
+                htmlPiece.className += ' white_king'
                 break
         }
     }else{
@@ -95,22 +95,22 @@ const makePiece = piece => {
             case types.none:
                 break
             case types.pawn:
-                htmlPiece.className += " black_pawn"
+                htmlPiece.className += ' black_pawn'
                 break
             case types.knight:
-                htmlPiece.className += " black_knight"
+                htmlPiece.className += ' black_knight'
                 break
             case types.bishop:
-                htmlPiece.className += " black_bishop"
+                htmlPiece.className += ' black_bishop'
                 break
             case types.rook:
-                htmlPiece.className += " black_rook"
+                htmlPiece.className += ' black_rook'
                 break
             case types.queen:
-                htmlPiece.className += " black_queen"
+                htmlPiece.className += ' black_queen'
                 break
             case types.king:
-                htmlPiece.className += " black_king"
+                htmlPiece.className += ' black_king'
                 break
         }
     }
@@ -121,7 +121,7 @@ const makePiece = piece => {
 // Makes a chessboard table, and attaches it to the container chess-board
 const renderChessboard = () => {
 
-    let chess_board = document.getElementById("chess-board")
+    let chess_board = document.getElementById('chess-board')
     while(chess_board.firstChild){
         chess_board.removeChild(chess_board.firstChild)
     }
@@ -129,18 +129,18 @@ const renderChessboard = () => {
 
     for(row_number = 0; row_number < 8; row_number++){
         
-        row = document.createElement("tr")
+        row = document.createElement('tr')
 
         for(col_number = 0; col_number < 8; col_number++){
 
-            square = document.createElement("td")
-            square.className = "chess-square"
-            square.id = row_number + "" + col_number
+            square = document.createElement('td')
+            square.className = 'chess-square'
+            square.id = row_number + '' + col_number
 
             if(color_counter % 2 != 0){
-                square.className += " dark-square"
+                square.className += ' dark-square'
             }else{
-                square.className += " light-square"
+                square.className += ' light-square'
             }
             
             row.appendChild(square)
