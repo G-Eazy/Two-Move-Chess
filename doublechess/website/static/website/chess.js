@@ -39,8 +39,6 @@ const chessboard = [
 ]
 
 
-
-
 // Renders the pieces the the chessboard datastructure to the html document
 const renderPieces = () => {
     for(row_number = 0; row_number < 8; row_number++){
@@ -61,37 +59,61 @@ const renderPieces = () => {
 // Takes object of the class piece and returns html element 
 const makePiece = piece => {
 
-    htmlPiece = document.createElement("div")
-    switch(piece.type){
-        
-        case types.none:
-            break
-        case types.pawn:
-            htmlPiece.innerHTML = "P"
-            break
-        case types.knight:
-            htmlPiece.innerHTML = "N"
-            break
-        case types.bishop:
-            htmlPiece.innerHTML = "B"
-            break
-        case types.rook:
-            htmlPiece.innerHTML = "R"
-            break
-        case types.queen:
-            htmlPiece.innerHTML = "Q"
-            break
-        case types.king:
-            htmlPiece.innerHTML = "K"
-            break
+    let htmlPiece = document.createElement("div")
+
+    if(piece.color === null){
+        return htmlPiece
     }
 
+    htmlPiece.className = "chess-piece"
+
     if(piece.color === colors.white){
-        htmlPiece.style.color = "green"
+        switch(piece.type){
+            case types.none:
+                break
+            case types.pawn:
+                htmlPiece.className += " white_pawn"
+                break
+            case types.knight:
+                htmlPiece.className += " white_knight"
+                break
+            case types.bishop:
+                htmlPiece.className += " white_bishop"
+                break
+            case types.rook:
+                htmlPiece.className += " white_rook"
+                break
+            case types.queen:
+                htmlPiece.className += " white_queen"
+                break
+            case types.king:
+                htmlPiece.className += " white_king"
+                break
+        }
     }else{
-        htmlPiece.style.color = "red"
+        switch(piece.type){
+            case types.none:
+                break
+            case types.pawn:
+                htmlPiece.className += " black_pawn"
+                break
+            case types.knight:
+                htmlPiece.className += " black_knight"
+                break
+            case types.bishop:
+                htmlPiece.className += " black_bishop"
+                break
+            case types.rook:
+                htmlPiece.className += " black_rook"
+                break
+            case types.queen:
+                htmlPiece.className += " black_queen"
+                break
+            case types.king:
+                htmlPiece.className += " black_king"
+                break
+        }
     }
-    htmlPiece.style.cursor = "default"
     return htmlPiece
 }
 

@@ -59,11 +59,11 @@
 }
 
 .dark-square{
-    background-color: #111122;
+    background-color: #333345;
 }
 
 .dark-square:hover{
-    background-color: #333344;
+    background-color: #444455;
 }
 
 .light-square{
@@ -72,4 +72,60 @@
 
 .light-square:hover{
     background-color: #CCCCDD;
+}
+
+.chess-piece{
+    background-size: 100%;
+    width: 100%;
+    height:100%;
+    margin:auto;
+}
+
+.white_king{
+    background-image: url('/static/website/images/white_king.svg');
+}
+
+.white_queen{
+    background-image: url('/static/website/images/white_queen.svg');
+}
+
+.white_rook{
+    background-image: url('/static/website/images/white_rook.svg');
+}
+
+.white_bishop{
+    background-image: url('/static/website/images/white_bishop.svg');
+}
+
+.white_knight{
+    background-image: url('/static/website/images/white_knight.svg');
+}
+
+.white_pawn{
+    background-image: url('/static/website/images/white_pawn.svg');
+}
+
+.black_king{
+    background-image: url('/static/website/images/black_king.svg');
+}
+
+
+.black_queen{
+   background-image: url('/static/website/images/black_queen.svg');
+}
+
+.black_rook{
+    background-image: url('/static/website/images/black_rook.svg');
+}
+
+.black_bishop{
+    background-image: url('/static/website/images/black_bishop.svg');
+}
+
+.black_knight{
+    background-image: url('/static/website/images/black_knight.svg');
+}
+
+.black_pawn{
+    background-image: url('/static/website/images/black_pawn.svg');
 }
