@@ -1,5 +1,5 @@
 # python cache files
-*/__pycache__/*
+*.pyc
 
 # My own files i want to ignore
 *.ignore
