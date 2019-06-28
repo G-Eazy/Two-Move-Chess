@@ -74,14 +74,25 @@
     background-color: #CCCCDD;
 }
 
-.dot {
+.move {
     height: 25px;
     width: 25px;
     background-color: #bbb;
     border-radius: 50%;
     display: inline-block;
     margin: auto;
-  }
+}
+
+.capture {
+    height: 25px;
+    width: 25px;
+    background-color:orange;
+    border-radius: 50%;
+    display: inline-block;
+    margin: auto;
+}
+
+
 .chess-piece{
     background-size: 100%;
     width: 100%;

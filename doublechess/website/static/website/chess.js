@@ -217,43 +217,36 @@ const selectSquare = id => {
 const highlightMoves = moves => {
 
     for (let item of moves) {
-        console.log(item)
         let square = document.getElementById(item)
-        let dot = document.createElement('div')
-        dot.className = 'dot'
-        dot.id = 'dot' + square.id
-        square.appendChild(dot)
+        let htmlMove = document.createElement('div')
+        htmlMove.className = 'move'
+        htmlMove.id = 'move' + square.id
+        square.appendChild(htmlMove)
     }
 }
 
 // This function highlights all legal captures
 const highlightCaptures = captures => {
-    // color rim of square
     for (let item of captures) {
-        /*
-        console.log(item)
         let square = document.getElementById(item)
-        let dot = document.createElement('div')
-        dot.className = 'dot'
-        dot.id = 'dot' + square.id
-        square.appendChild(dot)
-        */
+        let htmlCapture = document.createElement('div')
+        htmlCapture.className = 'capture'
+        htmlCapture.id = 'capture' + square.id
+        square.appendChild(htmlCapture)
     }
 }
 
-// Removes dots from board
+// Removes moves and captures from board
 const clearMovesAndCaptures = () => {
 
-
     for(let item of possibleMoves.captures){
-        // do something
-    }
-    
+        let square = document.getElementById(item)
+        square.removeChild(document.getElementById('capture' + square.id))  
+    } 
 
     for (let item of possibleMoves.moves) {
         let square = document.getElementById(item)
-        square.removeChild(document.getElementById('dot' + square.id))    
-        
+        square.removeChild(document.getElementById('move' + square.id))    
     }
 }
 
@@ -315,6 +308,9 @@ const whitePawnMoves = (row, column) => {
     if(row === 6) {
         possibleMoves.addMove((row - 1) + '' + column)
         possibleMoves.addMove((row - 2) + '' + column)
+        possibleMoves.addCapture((row-1)+ '' + (column - 1))
+        possibleMoves.addCapture((row-1)+ '' + (column + 1))
+
     }
     
     return possibleMoves
