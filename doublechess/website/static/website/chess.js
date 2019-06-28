@@ -13,12 +13,13 @@ const types = {
 // enum for colors
 const colors = {
     'white':0,
-    'black':1
+    'black':1,
+    'none':-1
 }
 
 // Piece class, containing fields type and color.
 class Piece{
-    constructor(type, color = null){
+    constructor(type, color = colors.none){
         this.type = type
         this.color = color
     }
@@ -49,7 +50,7 @@ var currentPiece = null
 var currentSquare = null;
 var turn = colors.white
 
-
+/*
 const chessboard = [
     [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
         new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
@@ -64,6 +65,22 @@ const chessboard = [
     [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
+*/
+const chessboard = [
+    [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
+        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
+    [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
+        new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(5, 0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(5, 1),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
+        new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
+    [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
+        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
+]
+
 
 
 // Renders the pieces the the chessboard datastructure to the html document
@@ -88,7 +105,7 @@ const makePiece = piece => {
 
     let htmlPiece = document.createElement('div')
 
-    if(piece.color === null){
+    if(piece.color === colors.none){
         return htmlPiece
     }
 
@@ -189,6 +206,7 @@ const selectSquare = id => {
     clearMovesAndCaptures()
     currentPiece = getPieceById(id)
     if(currentPiece.type === types.none) {
+
         return;
     }
     /*
@@ -204,7 +222,9 @@ const selectSquare = id => {
     */
     
     possibleMoves = getAvailableMoves(currentPiece, id)
-    //console.log('moves : ' + moves)
+    console.log("id:" + id)
+    console.log('\tmoves : ' + possibleMoves.moves)
+    console.log('\tcaptures : ' + possibleMoves.captures)
     highlightMoves(possibleMoves.moves)
     highlightCaptures(possibleMoves.captures)
 
@@ -238,16 +258,30 @@ const highlightCaptures = captures => {
 
 // Removes moves and captures from board
 const clearMovesAndCaptures = () => {
-
     for(let item of possibleMoves.captures){
         let square = document.getElementById(item)
-        square.removeChild(document.getElementById('capture' + square.id))  
+        let child = document.getElementById('capture' + square.id)
+        console.log(child)
+        // try catch in case a highlight has been added to a square, and then a piece spawned / moved to that square,
+        // then this function throws an error, same goes for the case below
+        try {
+            square.removeChild(child)  
+        } catch (error) {
+            
+        }
     } 
 
     for (let item of possibleMoves.moves) {
         let square = document.getElementById(item)
-        square.removeChild(document.getElementById('move' + square.id))    
+        let child2 = document.getElementById('move' + square.id)
+        console.log(child2)
+        try {
+            square.removeChild(child2)    
+        } catch (error) {
+            
+        }
     }
+    possibleMoves = new PossibleMoves()
 }
 
 // This function returns an object with possible moves and captures
@@ -259,6 +293,7 @@ const getAvailableMoves = (piece, id) => {
     if(color === colors.white){
         switch(piece.type) {
             case types.pawn:
+                console.log("WHITE PAWN")
                 return whitePawnMoves(row, column)
             
             case types.knight:
@@ -302,15 +337,49 @@ const getAvailableMoves = (piece, id) => {
 }
 
 
-    
+// White pieces
 const whitePawnMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // pieces in front of pawn
+    let pieceInFront = chessboard[row-1][column]
+    let pieceInFront2 = chessboard[row-2][column]
+    console.log("row:" + row + "  column: " + column)
+    console.log("piece in front type:" + pieceInFront.type)
+    // moves
     if(row === 6) {
-        possibleMoves.addMove((row - 1) + '' + column)
-        possibleMoves.addMove((row - 2) + '' + column)
-        possibleMoves.addCapture((row-1)+ '' + (column - 1))
-        possibleMoves.addCapture((row-1)+ '' + (column + 1))
-
+        if(pieceInFront.type === types.none) {
+            console.log("Adding move + 1")
+            possibleMoves.addMove((row - 1) + '' + column)
+        }
+        if(pieceInFront.type == types.none && pieceInFront2.type === types.none) {
+            console.log("Adding move + 2")
+            possibleMoves.addMove((row - 2) + '' + column)
+        }
+        
+    }
+    else {
+        if(pieceInFront.type === types.none) {
+            console.log("Adding move + 1")
+            possibleMoves.addMove((row - 1) + '' + column)
+        }
+    }
+    // pieces in front-right or front-left of pawn
+    let pieceInFrontRight = null
+    let pieceInFrontLeft = null
+    if(column + 1 <= 7) {
+        pieceInFrontRight = chessboard[row-1][column+1]    
+    }
+    if(column -1 >= 0) {
+        pieceInFrontLeft = chessboard[row-1][column-1]
+    }
+    // captures
+    if(pieceInFrontRight != null && pieceInFrontRight.color === colors.black) {
+        console.log("Adding capture right")
+        possibleMoves.addCapture((row-1) + "" + (column+1))
+    }
+    if(pieceInFrontLeft != null && pieceInFrontLeft.color === colors.black) {
+        console.log("Adding capture left")
+        possibleMoves.addCapture((row-1) + "" + (column-1))
     }
     
     return possibleMoves
@@ -318,52 +387,924 @@ const whitePawnMoves = (row, column) => {
 }
 const whiteKnightMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // Move and capture up right
+    try {
+        let piece = chessboard[row - 2][column + 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 2) + "" + (column + 1))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row - 2) + "" + (column + 1))
+        }
+    } catch (error) {}
+    // Move and capture up left
+    try {
+        let piece = chessboard[row - 2][column - 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 2) + "" + (column - 1))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row - 2) + "" + (column - 1))
+        }
+    } catch (error) {}
+
+    // Move and capture down right
+    try {
+        let piece = chessboard[row + 2][column + 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 2) + "" + (column + 1))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row + 2) + "" + (column + 1))
+        }
+    } catch (error) {}
+    // Move and capture down left
+    try {
+        let piece = chessboard[row + 2][column - 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 2) + "" + (column - 1))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row + 2) + "" + (column - 1))
+        }
+    } catch (error) {}
+    
+    // Move and capture right up
+    try {
+        let piece = chessboard[row - 1][column + 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 1) + "" + (column + 2))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row - 1) + "" + (column + 2))
+        }
+    } catch (error) {}
+    // Move and capture right down
+    try {
+        let piece = chessboard[row + 1][column + 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 1) + "" + (column + 2))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row + 1) + "" + (column + 2))
+        }
+    } catch (error) {}
+
+    // Move and capture left up
+    try {
+        let piece = chessboard[row - 1][column - 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 1) + "" + (column - 2))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row - 1) + "" + (column - 2))
+        }
+    } catch (error) {}
+
+    // Move and capture left down
+    try {
+        let piece = chessboard[row + 1][column - 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 1) + "" + (column - 2))
+        }
+        else if(piece.color === colors.black) {
+            possibleMoves.addCapture((row + 1) + "" + (column - 2))
+        }
+    } catch (error) {}
+
     return possibleMoves
 
 }
 const whiteBishopMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // first diagonal movement and capture
+
+    // default values
+    let i = row
+    let j = column
+    console.log("going right upwards")
+    if(row < 7) {
+        for(i = row+1, j = column+1; i <= 7 && j <= 7; i++, j++) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up and right")
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i <= 7 && j <= 7 && chessboard[i][j].color === colors.black) {
+            console.log("capture piece at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    if(row > 0) {
+        console.log("going left downwards")
+        for(i = row-1, j = column-1; i >= 0 && j >= 0; i--, j--) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down left")
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i >= 0 && j >= 0 && chessboard[i][j].color === colors.black) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+
+    // second diagonal movement and capture
+    // default values
+    i = row
+    j = column
+    if(column < 7) {
+        console.log("going left upwards")
+
+        console.log("i = " + i + "\tj = " + j)
+        for(i = row-1, j = column+1; i >= 0 && j <= 7; i--, j++) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i >= 0 && j <= 7 && chessboard[i][j].color === colors.black) {
+            console.log("capture piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(i = row+1, j = column-1; i <= 7 && j >= 0; i++, j--) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i <= 7 && j >= 0 && chessboard[i][j].color === colors.black) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
     return possibleMoves
 
 }
 const whiteRookMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+
+    // Row movement and capture
+    let i = row
+    console.log("going upwards")
+    if(row < 7) {
+        for(i = row+1; i <= 7; i++) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up")
+                possibleMoves.addMove(i + "" + column)
+            }
+            
+            
+        }
+        if(i <= 7 && chessboard[i][column].color === colors.black) {
+            console.log("capture black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    if(row > 0) {
+        console.log("going downwards")
+        for(i = row-1; i >= 0; i--) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down")
+                possibleMoves.addMove(i + "" + column)
+            }
+        }
+        if(i >= 0 && chessboard[i][column].color === colors.black) {
+            console.log("capture2 black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    // Column movement and capture
+    let j = column
+    if(column < 7) {
+        console.log("j = " + j)
+        for(j = column+1; j <= 7; j++) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break")
+                break
+            }
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+            
+            
+        }
+        if(j <= 7 && chessboard[row][j].color === colors.black) {
+            console.log("capture white at " + j + "" + column)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(j = column-1; j >= 0; j--) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break2")
+                break
+            } 
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+        }
+        if(j >= 0 && chessboard[row][j].color === colors.black) {
+            console.log("capture2 black at " + row + "" + j)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
     return possibleMoves
 
 }
 const whiteQueenMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+
+    // Row movement and capture
+    let i = row
+    console.log("going upwards")
+    if(row < 7) {
+        for(i = row+1; i <= 7; i++) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up")
+                possibleMoves.addMove(i + "" + column)
+            }
+            
+            
+        }
+        if(i <= 7 && chessboard[i][column].color === colors.black) {
+            console.log("capture black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    if(row > 0) {
+        console.log("going downwards")
+        for(i = row-1; i >= 0; i--) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down")
+                possibleMoves.addMove(i + "" + column)
+            }
+        }
+        if(i >= 0 && chessboard[i][column].color === colors.black) {
+            console.log("capture2 black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    // Column movement and capture
+    let j = column
+    if(column < 7) {
+        console.log("j = " + j)
+        for(j = column+1; j <= 7; j++) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break")
+                break
+            }
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+            
+            
+        }
+        if(j <= 7 && chessboard[row][j].color === colors.black) {
+            console.log("capture black at " + j + "" + column)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(j = column-1; j >= 0; j--) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break2")
+                break
+            } 
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+        }
+        if(j >= 0 && chessboard[row][j].color === colors.black) {
+            console.log("capture2 black at " + row + "" + j)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+
+    // first diagonal movement and capture
+
+    // default values
+    i = row
+    j = column
+    console.log("going right upwards")
+    if(row < 7) {
+        for(i = row+1, j = column+1; i <= 7 && j <= 7; i++, j++) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up and right")
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i <= 7 && j <= 7 && chessboard[i][j].color === colors.black) {
+            console.log("capture piece at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    if(row > 0) {
+        console.log("going left downwards")
+        for(i = row-1, j = column-1; i >= 0 && j >= 0; i--, j--) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down left")
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i >= 0 && j >= 0 && chessboard[i][j].color === colors.black) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+
+    // second diagonal movement and capture
+    // default values
+    i = row
+    j = column
+    if(column < 7) {
+        console.log("going left upwards")
+
+        console.log("i = " + i + "\tj = " + j)
+        for(i = row-1, j = column+1; i >= 0 && j <= 7; i--, j++) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i >= 0 && j <= 7 && chessboard[i][j].color === colors.black) {
+            console.log("capture piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(i = row+1, j = column-1; i <= 7 && j >= 0; i++, j--) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i <= 7 && j >= 0 && chessboard[i][j].color === colors.black) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+
+
     return possibleMoves
 
 }
 const whiteKingMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    
     return possibleMoves
 
 }
 
+
+// Black pieces
 const blackPawnMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // pieces in front of pawn
+    let pieceInFront = chessboard[row+1][column]
+    let pieceInFront2 = chessboard[row+2][column]
+    console.log("row:" + row + "  column: " + column)
+    console.log("piece in front type:" + pieceInFront.type)
+    // moves
+    if(row === 1) {
+        if(pieceInFront.type === types.none) {
+            console.log("Adding move + 1")
+            possibleMoves.addMove((row + 1) + '' + column)
+        }
+        if(pieceInFront.type == types.none && pieceInFront2.type === types.none) {
+            console.log("Adding move + 2")
+            possibleMoves.addMove((row + 2) + '' + column)
+        }
+        
+    }
+    else {
+        if(pieceInFront.type === types.none) {
+            console.log("Adding move + 1")
+            possibleMoves.addMove((row + 1) + '' + column)
+        }
+    }
+    // pieces in front-right or front-left of pawn
+    let pieceInFrontRight = null
+    let pieceInFrontLeft = null
+    if(column - 1 >= 0) {
+        pieceInFrontRight = chessboard[row+1][column-1]    
+    }
+    if(column + 1 <= 7) {
+        pieceInFrontLeft = chessboard[row+1][column+1]
+    }
+    // captures
+    if(pieceInFrontRight != null && pieceInFrontRight.color == colors.white) {
+        console.log("Adding capture right")
+        possibleMoves.addCapture((row+1) + "" + (column-1))
+    }
+    if(pieceInFrontLeft != null && pieceInFrontLeft.color == colors.white) {
+        console.log("Adding capture left")
+        possibleMoves.addCapture((row+1) + "" + (column+1))
+    }
+    
     return possibleMoves
 
 }
 const blackKnightMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // Move and capture up right
+    try {
+        let piece = chessboard[row - 2][column + 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 2) + "" + (column + 1))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row - 2) + "" + (column + 1))
+        }
+    } catch (error) {}
+    // Move and capture up left
+    try {
+        let piece = chessboard[row - 2][column - 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 2) + "" + (column - 1))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row - 2) + "" + (column - 1))
+        }
+    } catch (error) {}
+
+    // Move and capture down right
+    try {
+        let piece = chessboard[row + 2][column + 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 2) + "" + (column + 1))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row + 2) + "" + (column + 1))
+        }
+    } catch (error) {}
+    // Move and capture down left
+    try {
+        let piece = chessboard[row + 2][column - 1]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 2) + "" + (column - 1))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row + 2) + "" + (column - 1))
+        }
+    } catch (error) {}
+    
+    // Move and capture right up
+    try {
+        let piece = chessboard[row - 1][column + 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 1) + "" + (column + 2))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row - 1) + "" + (column + 2))
+        }
+    } catch (error) {}
+    // Move and capture right down
+    try {
+        let piece = chessboard[row + 1][column + 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 1) + "" + (column + 2))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row + 1) + "" + (column + 2))
+        }
+    } catch (error) {}
+
+    // Move and capture left up
+    try {
+        let piece = chessboard[row - 1][column - 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row - 1) + "" + (column - 2))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row - 1) + "" + (column - 2))
+        }
+    } catch (error) {}
+
+    // Move and capture left down
+    try {
+        let piece = chessboard[row + 1][column - 2]
+        if(piece.color === colors.none) {
+            possibleMoves.addMove((row + 1) + "" + (column - 2))
+        }
+        else if(piece.color === colors.white) {
+            possibleMoves.addCapture((row + 1) + "" + (column - 2))
+        }
+    } catch (error) {}
+
     return possibleMoves
 
 }
 const blackBishopMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // first diagonal movement and capture
+
+    // default values
+    let i = row
+    let j = column
+    console.log("going right upwards")
+    if(row < 7) {
+        for(i = row+1, j = column+1; i <= 7 && j <= 7; i++, j++) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up and right")
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i <= 7 && j <= 7 && chessboard[i][j].color === colors.white) {
+            console.log("capture piece at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    if(row > 0) {
+        console.log("going left downwards")
+        for(i = row-1, j = column-1; i >= 0 && j >= 0; i--, j--) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down left")
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i >= 0 && j >= 0 && chessboard[i][j].color === colors.white) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+
+    // second diagonal movement and capture
+    // default values
+    i = row
+    j = column
+    if(column < 7) {
+        console.log("going left upwards")
+
+        console.log("i = " + i + "\tj = " + j)
+        for(i = row-1, j = column+1; i >= 0 && j <= 7; i--, j++) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i >= 0 && j <= 7 && chessboard[i][j].color === colors.white) {
+            console.log("capture piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(i = row+1, j = column-1; i <= 7 && j >= 0; i++, j--) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i <= 7 && j >= 0 && chessboard[i][j].color === colors.white) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
     return possibleMoves
 
 }
 const blackRookMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+
+    // Row movement and capture
+    let i = row+1
+    console.log("going upwards")
+    if(row < 7) {
+        for(i = row+1; i <= 7; i++) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up")
+                possibleMoves.addMove(i + "" + column)
+            }
+            
+            
+        }
+        if(i <= 7 && chessboard[i][column].color === colors.white) {
+            console.log("capture black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    if(row > 0) {
+        console.log("going downwards")
+        for(i = row-1; i >= 0; i--) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down")
+                possibleMoves.addMove(i + "" + column)
+            }
+        }
+        if(i >= 0 && chessboard[i][column].color === colors.white) {
+            console.log("capture2 black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    // Column movement and capture
+    let j = column+1
+    if(column < 7) {
+        console.log("j = " + j)
+        for(j = column+1; j <= 7; j++) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break")
+                break
+            }
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+            
+            
+        }
+        if(j <= 7 && chessboard[row][j].color === colors.white) {
+            console.log("capture white at " + j + "" + column)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(j = column-1; j >= 0; j--) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break2")
+                break
+            } 
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+        }
+        if(j >= 0 && chessboard[row][j].color === colors.white) {
+            console.log("capture2 black at " + row + "" + j)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
     return possibleMoves
 
 }
 const blackQueenMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
+    // Row movement and capture
+    let i = row
+    console.log("going upwards")
+    if(row < 7) {
+        for(i = row+1; i <= 7; i++) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up")
+                possibleMoves.addMove(i + "" + column)
+            }
+            
+            
+        }
+        if(i <= 7 && chessboard[i][column].color === colors.white) {
+            console.log("capture black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    if(row > 0) {
+        console.log("going downwards")
+        for(i = row-1; i >= 0; i--) {
+            console.log("i = " + i)
+            if(chessboard[i][column].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down")
+                possibleMoves.addMove(i + "" + column)
+            }
+        }
+        if(i >= 0 && chessboard[i][column].color === colors.white) {
+            console.log("capture2 black at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + column)
+        }
+    }
+    // Column movement and capture
+    let j = column
+    if(column < 7) {
+        console.log("j = " + j)
+        for(j = column+1; j <= 7; j++) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break")
+                break
+            }
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+            
+            
+        }
+        if(j <= 7 && chessboard[row][j].color === colors.white) {
+            console.log("capture white at " + j + "" + column)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(j = column-1; j >= 0; j--) {
+            if(chessboard[row][j].type != types.none) {
+                console.log("break2")
+                break
+            } 
+            else {
+                possibleMoves.addMove(row + "" + j)
+            }
+        }
+        if(j >= 0 && chessboard[row][j].color === colors.white) {
+            console.log("capture2 black at " + row + "" + j)
+            possibleMoves.addCapture(row + "" + j)
+        }
+    }
+    
+
+    // first diagonal movement and capture
+
+    // default values
+    i = row
+    j = column
+    console.log("going right upwards")
+    if(row < 7) {
+        for(i = row+1, j = column+1; i <= 7 && j <= 7; i++, j++) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                console.log("adding move up and right")
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i <= 7 && j <= 7 && chessboard[i][j].color === colors.white) {
+            console.log("capture piece at " + i + "" + column)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    if(row > 0) {
+        console.log("going left downwards")
+        for(i = row-1, j = column-1; i >= 0 && j >= 0; i--, j--) {
+            console.log("i = " + i + "\tj = " + j)
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                console.log("adding move down left")
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i >= 0 && j >= 0 && chessboard[i][j].color === colors.white) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+
+    // second diagonal movement and capture
+    // default values
+    i = row
+    j = column
+    if(column < 7) {
+        console.log("going left upwards")
+
+        console.log("i = " + i + "\tj = " + j)
+        for(i = row-1, j = column+1; i >= 0 && j <= 7; i--, j++) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            }
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+            
+            
+        }
+        if(i >= 0 && j <= 7 && chessboard[i][j].color === colors.white) {
+            console.log("capture piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+    if(column > 0) {
+        for(i = row+1, j = column-1; i <= 7 && j >= 0; i++, j--) {
+            if(chessboard[i][j].type != types.none) {
+                console.log("no available squares")
+                break
+            } 
+            else {
+                possibleMoves.addMove(i + "" + j)
+            }
+        }
+        if(i <= 7 && j >= 0 && chessboard[i][j].color === colors.white) {
+            console.log("capture2 piece at " + i + "" + j)
+            possibleMoves.addCapture(i + "" + j)
+        }
+    }
+    
+
+
     return possibleMoves
 
 }
