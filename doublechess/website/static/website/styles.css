@@ -80,13 +80,15 @@
     width: 25px;
     background-color: #bbb;
     border-radius: 50%;
-
     position: absolute;
-    margin-left: auto;
-    margin-right: auto;
     left: 0;
-    right: 0;
-
+    right:0;
+    margin-left:auto;
+    margin-right: auto;
+    top:0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .capture {
@@ -94,13 +96,16 @@
     width: 25px;
     background-color:orange;
     border-radius: 50%;
-    
     position: absolute;
-    margin-left: auto;
-    margin-right: auto;
     left: 0;
-    right: 0;
-
+    right:0;
+    margin-left:auto;
+    margin-right: auto;
+    top:0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 1;
 }
 
 
@@ -108,13 +113,18 @@
     background-size: 100%;
     width: 100%;
     height:100%;
-    
     position: absolute;
-    margin-left: auto;
-    margin-right: auto;
     left: 0;
-    right: 0;
+    right:0;
+    margin-left:auto;
+    margin-right: auto;
+    top:0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 1;
 }
+
 
 .white_king{
     background-image: url('/static/website/images/white_king.svg');
