@@ -360,7 +360,6 @@ const kingMoves = (row, column, otherColor) => {
     let possibleMoves = new PossibleMoves()
     for(let r = row -1; r <= row + 1; r++){
         for(let c = column - 1; c <= column + 1; c++){
-            
             if(r === row && c === column){
                 continue
             }
