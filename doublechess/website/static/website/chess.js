@@ -49,7 +49,7 @@ var currentPiece = null
 var currentSquare = null;
 var turn = colors.white
 
-
+/*
 const chessboard = [
     [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
         new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
@@ -63,8 +63,18 @@ const chessboard = [
         new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
     [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
-]
+]*/
 
+const chessboard = [
+    [new Piece(6,1),new Piece(0),new Piece(6,0),new Piece(6,1),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(1,0),new Piece(3,0),new Piece(2,1),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(6,0),new Piece(6,1),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(6,0)],
+    [new Piece(5,1),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(5,1),new Piece(3,1),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(6,0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)]
+]
 
 // Renders the pieces the the chessboard datastructure to the html document
 const renderPieces = () => {
@@ -248,6 +258,7 @@ const clearMovesAndCaptures = () => {
         let square = document.getElementById(item)
         square.removeChild(document.getElementById('move' + square.id))    
     }
+    possibleMoves = new PossibleMoves()
 }
 
 // This function returns an object with possible moves and captures
@@ -336,10 +347,36 @@ const whiteQueenMoves = (row, column) => {
     return possibleMoves
 
 }
-const whiteKingMoves = (row, column) => {
-    let possibleMoves = new PossibleMoves()
-    return possibleMoves
 
+const blackKingMoves = (row, column) => {
+    return kingMoves(row, column, colors.white)
+}
+
+const whiteKingMoves = (row, column) => {
+    return kingMoves(row, column, colors.black)
+}
+
+const kingMoves = (row, column, otherColor) => {
+    let possibleMoves = new PossibleMoves()
+    for(let r = row -1; r <= row + 1; r++){
+        for(let c = column - 1; c <= column + 1; c++){
+            
+            if(r === row && c === column){
+                continue
+            }
+            try{
+                let piece = chessboard[r][c]
+                if(piece.color === null){
+                    possibleMoves.addMove(r + "" + c)
+                }else if(piece.color === otherColor){
+                    possibleMoves.addCapture(r + "" + c)
+                }
+            }catch(err){
+
+            }
+        }
+    }
+    return possibleMoves
 }
 
 const blackPawnMoves = (row, column) => {
@@ -363,11 +400,6 @@ const blackRookMoves = (row, column) => {
 
 }
 const blackQueenMoves = (row, column) => {
-    let possibleMoves = new PossibleMoves()
-    return possibleMoves
-
-}
-const blackKingMoves = (row, column) => {
     let possibleMoves = new PossibleMoves()
     return possibleMoves
 
