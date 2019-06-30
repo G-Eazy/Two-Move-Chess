@@ -40,7 +40,7 @@
 .chess-board-container{
     display: inline-block;
     display: content-box;
-    border: 3px solid grey;
+    border: 3px solid #222233;
     margin: 10px;
 }
 
@@ -60,11 +60,11 @@
 }
 
 .dark-square{
-    background-color: #333345;
+    background-color: #444466;
 }
 
 .dark-square:hover{
-    background-color: #444455;
+    background-color: #555577;
 }
 
 .light-square{
@@ -76,10 +76,11 @@
 }
 
 .move {
-    height: 25px;
-    width: 25px;
+    height: 18px;
+    width: 18px;
     background-color: #bbb;
     border-radius: 50%;
+    opacity: 0.7;
     position: absolute;
     left: 0;
     right:0;
@@ -90,9 +91,10 @@
 }
 
 .capture {
-    height: 25px;
-    width: 25px;
+    height: 18px;
+    width: 18px;
     background-color:orange;
+    opacity: 0.6;
     border-radius: 50%;
     position: absolute;
     left: 0;

@@ -50,7 +50,7 @@ var currentPiece = null
 var currentSquare = null;
 var turn = colors.white
 
-/*
+
 const chessboard = [
     [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
         new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
@@ -65,21 +65,7 @@ const chessboard = [
     [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
-*/
-const chessboard = [
-    [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
-        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
-    [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
-        new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(5, 0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(5, 1),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
-        new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
-    [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
-        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
-]
+
 
 
 // Renders the pieces the the chessboard datastructure to the html document
