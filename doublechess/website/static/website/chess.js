@@ -66,10 +66,14 @@ const chessboard = [
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
 
-const moves = ["e4", "e5", "g3", "Nxe5", "Bc4", "e3"]
+const moves = ["e4", "e5", "g3", "Nxe5", "Bc4", "e3", "e4", "e5", "g3", "Nxe5", "Bc4", "e3",
+                "e4", "e5", "g3", "Nxe5", "Bc4", "e3", "e4", "e5", "g3", "Nxe5", "Bc4", "e3"]
+ 
 
 // takes a list of moves as parameter, and displays them in the move display
 updatePreviousMovesDisplay = moves => {
+
+    console.log("hello")
 
     if(moves.length === 0){
         return
@@ -78,36 +82,41 @@ updatePreviousMovesDisplay = moves => {
     whiteMoveBar = document.getElementById("white-move-display")
     blackMoveBar = document.getElementById("black-move-display")
     sideBar = document.getElementById("move-sidebar")
-
-    sideBar.appendChild(getDisplayElement("1"))
-    whiteMoveBar.appendChild(getDisplayElement(moves[0]))
+    sideBar.appendChild(getDisplayElement("1", false))
+    whiteMoveBar.appendChild(getDisplayElement("", false, moves[0]))
 
     for(let i = 1; i < moves.length; i++){
 
         if(i % 4 === 1 && moves.length >= i){
-            blackMoveBar.appendChild(getDisplayElement(moves[i], moves[i+1]))
+            blackMoveBar.appendChild(getDisplayElement(moves[i], true, moves[i+1]))
             i++
         }else if(i % 4 === 1){
-            blackMoveBar.appendChild(getDisplayElement(moves[i]))
+            blackMoveBar.appendChild(getDisplayElement(moves[i], true))
         }else if(i % 4 === 3 && moves.length >= i){
-            sideBar.appendChild(getDisplayElement(Math.floor(i/4)+2))
-            whiteMoveBar.appendChild(getDisplayElement(moves[i], moves[i+1]))
+            sideBar.appendChild(getDisplayElement(Math.floor(i/4)+2), false)
+            whiteMoveBar.appendChild(getDisplayElement(moves[i], true, moves[i+1]))
             i++
         }else{
-            whiteMoveBar.appendChild(getDisplayElement(moves[i]))
+            whiteMoveBar.appendChild(getDisplayElement(moves[i], true))
         }
 
     }
 }
 
+
 // takes 1 or 2 strings, and makes a html row to be inserted into the move display
-getDisplayElement = (string1, string2=null) => {
+getDisplayElement = (string1, highlight, string2=null) => {
 
     row = document.createElement("div")
     row.className = "move-display-row"
 
     element1 = document.createElement("div")
-    element1.className = "move-display-row-element"
+
+    if(highlight === true){
+        element1.className = "move-display-row-element"
+    }else{
+        element1.className = "move-display-row-element-nohighlight"
+    }
     element1.innerHTML = string1
     row.appendChild(element1)
 

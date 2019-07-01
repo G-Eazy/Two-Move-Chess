@@ -116,6 +116,16 @@ html, body{
     padding: 5px;
     margin: 1px;
     flex-grow: 1;
+    flex-basis: 0;
+}
+
+.move-display-row-element-nohighlight{
+    font-size:22px;
+    font-weight: bold;
+    padding: 5px;
+    margin: 1px;
+    flex-grow: 1;
+    flex-basis: 0;
     text-align: center;
 }
 
