@@ -8,9 +8,25 @@
 {% block content %}
 
 <div class="chess-board-container">
-    <table class="chess-board" id="chess-board">
-
-    </table>
+    <table class="chess-board" id="chess-board"></table>
+</div>
+<div class="move-display">
+    <div class="move-display-sidebar">
+        <div class="move-display-header"></div>
+        <div class="move-display-side-content" id="move-sidebar"></div>
+    </div>
+    <div class="move-display-side">
+        <div class="move-display-header">
+            <div>White</div>
+        </div>
+        <div class="move-display-side-content" id="white-move-display"></div>
+    </div>
+    <div class="move-display-side">
+        <div class="move-display-header">
+            <div>Black</div>
+        </div>
+        <div class="move-display-side-content" id="black-move-display"></div>
+    </div>
 </div>
 
 {% endblock %}
