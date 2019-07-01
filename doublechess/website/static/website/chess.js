@@ -38,6 +38,7 @@ class PossibleMoves {
         this.addCapture = id => {
             this.captures.push(id)
         }
+
     }
 }
 
@@ -45,9 +46,9 @@ class PossibleMoves {
 
 // Global variables 
 var possibleMoves = new PossibleMoves()
+var currentPiece, lastCurrentPiece = null
+var currentSquare, lastCurrentSquare = null;
 //for use later
-var currentPiece = null
-var currentSquare = null;
 var turn = colors.white
 
 
@@ -57,8 +58,8 @@ const chessboard = [
     [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
         new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(6, 0),new Piece(6, 1),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(5, 1),new Piece(5, 0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
         new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
@@ -66,19 +67,14 @@ const chessboard = [
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
 
-const moves = ["e4", "e5", "g3", "Nxe5", "Bc4", "e3", "e4", "e5", "g3", "Nxe5", "Bc4", "e3",
-                "e4", "e5", "g3", "Nxe5", "Bc4", "e3", "e4", "e5", "g3", "Nxe5", "Bc4", "e3"]
- 
+const moves = []
 
 // takes a list of moves as parameter, and displays them in the move display
 updatePreviousMovesDisplay = moves => {
 
-    console.log("hello")
-
     if(moves.length === 0){
         return
     }
-
     whiteMoveBar = document.getElementById("white-move-display")
     blackMoveBar = document.getElementById("black-move-display")
     sideBar = document.getElementById("move-sidebar")
@@ -128,8 +124,6 @@ getDisplayElement = (string1, highlight, string2=null) => {
     }
     return row
 }
-
-
 
 
 // Renders the pieces the the chessboard datastructure to the html document
@@ -253,35 +247,193 @@ const renderChessboard = () => {
 
 // This function is called when a square is clicked
 const selectSquare = id => {
-    clearMovesAndCaptures()
-    currentPiece = getPieceById(id)
-    if(currentPiece.type === types.none) {
-
-        return;
-    }
-    /*
+    console.log("Pressed square:" + id)
+    console.log("MOVES")
+    for(let elem of moves) {
+        console.log(elem)
+    } 
+    // No current piece selected
     if(currentPiece == null) {
+        console.log("no piece selected")
         currentPiece = getPieceById(id)
         currentSquare = document.getElementById(id)
-        if(currentPiece.type == 0) {
-            currentPiece = null
+        // Square selected is empty square 
+        if(currentPiece.type == types.none) {
+            console.log("piece selected is empty square")
+            clearMovesAndCaptures()
             return
+        }
+        // Square selected holds a piece
+        else {
+            console.log("piece selected is new piece")
+            currentPiece = getPieceById(id)
+            currentSquare = document.getElementById(id)
+            
+            possibleMoves = getAvailableMoves(currentPiece, id)
+            highlightMoves(possibleMoves.moves)
+            highlightCaptures(possibleMoves.captures)
         }
         
     }
-    */
-    
-    possibleMoves = getAvailableMoves(currentPiece, id)
-    highlightMoves(possibleMoves.moves)
-    highlightCaptures(possibleMoves.captures)
+    else {
+        console.log("Current piece selected : " + currentPiece.type)
+        lastCurrentPiece = currentPiece 
+        lastCurrentSquare = currentSquare
 
-    //movePiece(id, currentPiece)
+        currentPiece = getPieceById(id)
+        currentSquare = document.getElementById(id)
+        
+        if(! legalMove()) {
+            clearMovesAndCaptures() 
+            return
+        }
+        
+        // Move to empty square
+        if(currentPiece.type === types.none) {
+            console.log("moving to empty square")
+            movePiece(lastCurrentSquare, currentSquare, false)
+            clearMovesAndCaptures()
+        }
+        // Capture enemy piece
+        else if(lastCurrentPiece.color != currentPiece.color) {
+            console.log("capturing enemy piece")
+            movePiece(lastCurrentSquare, currentSquare, true)
+            clearMovesAndCaptures()
+        }
+        else {
+            console.log("clearing moves and captures")
+            clearMovesAndCaptures()
+            return
+        }
 
-
+        // Move or capture has been made
+        console.log("rendering pieces")
+        renderPieces()
+        try {
+            console.log(`>>> CP: ${currentPiece.type}\n>>> CS: ${currentSquare.id}\n>>> LCP: ${lastCurrentPiece.type}\n>>> LCS: ${lastCurrentSquare.id}`)
+        } catch (error) {
+            console.log("Some value is null")}
+    }
 }
+
+const legalMove = () => {
+    console.log("Possible moves: ")
+    for(let elem of possibleMoves.moves) {
+        console.log("elem:" + elem)
+        if(currentSquare.id === elem) {
+            return true
+        } 
+    }
+    console.log("Possible captures: ")
+    for(let elem of possibleMoves.captures) {
+        console.log("elem:" + elem)
+        if(currentSquare.id === elem) {
+            return true
+        } 
+    }
+    console.log("Illegal move")
+    return false
+}
+
+const movePiece = (squareFrom, squareTo, capture) => {
+
+    let squareFromRow = parseInt(squareFrom.id.substring(0, 1))
+    let squareFromColumn = parseInt(squareFrom.id.substring(1, 2))
+    
+    let squareToRow = parseInt(squareTo.id.substring(0, 1))
+    let squareToColumn = parseInt(squareTo.id.substring(1, 2))
+    let piece = getPieceById(squareFrom.id)
+    chessboard[squareFromRow][squareFromColumn] = new Piece(0)
+    chessboard[squareToRow][squareToColumn] = piece
+    
+    addMoveString(piece, squareFrom, squareTo, capture) 
+} 
+
+const addMoveString = (piece, squareFrom, squareTo, capture) => {
+
+    let moveString = ""
+
+    if(piece.type === types.pawn && capture) {
+        moveString += getLetterFromId(squareFrom.id)
+    }
+    else if (piece.type != types.pawn){
+        // later we can separate equal pieces that can move to same square here
+        moveString += typeIdToTypeName(piece.type)
+    }
+
+    if(capture) {
+        moveString += "x"
+    }
+
+    moveString += getLetterFromId(squareTo.id) + (8 - parseInt(squareTo.id.substring(0, 1)))
+    moves.push(moveString)
+    updatePreviousMovesDisplay(moves)
+}
+
+const getLetterFromId = id => {
+    let squareColumn = parseInt(id.substring(1, 2))
+    let letter = null
+    switch(squareColumn) {
+        case 0:
+            letter = 'a' 
+            break
+        case 1:
+            letter = 'b' 
+            break
+        case 2:
+            letter = 'c' 
+            break
+        case 3:
+            letter = 'd' 
+            break
+        case 4:
+            letter = 'e' 
+            break
+        case 5:
+            letter = 'f' 
+            break
+        case 6:
+            letter = 'g' 
+            break
+        case 7:
+            letter = 'h' 
+            break
+    }
+
+    return letter
+}
+
+const typeIdToTypeName = type => {
+    let retType = 0
+    switch(type) {
+        case 0:
+            retType = 'none'
+            break
+        case 1:
+            retType = 'P'
+            break
+        case 2:
+            retType = 'N'
+            break
+        case 3:
+            retType = 'B'
+            break
+        case 4:
+            retType = 'R'
+            break
+        case 5:
+            retType = 'Q'
+            break
+        case 6:
+            retType = 'K'
+            break
+    }
+
+    return retType
+}
+
 // This function highlights all legal moves
 const highlightMoves = moves => {
-
     for (let item of moves) {
         let square = document.getElementById(item)
         let htmlMove = document.createElement('div')
@@ -325,6 +477,10 @@ const clearMovesAndCaptures = () => {
             
         }
     }
+    currentPiece = null
+    currentSquare = null
+    lastCurrentPiece = null
+    lastCurrentSquare = null
     possibleMoves = new PossibleMoves()
 }
 
@@ -436,7 +592,7 @@ const blackKingMoves = (row, column) => {
 // Moves
 
 const pawnMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
 
     // black / white variables
     // pieces in front of pawn
@@ -459,9 +615,9 @@ const pawnMoves = (row, column, otherColor) => {
     }
 
     let pieceInFront = chessboard[rowIndex1][column]
-    let pieceInFront2 = chessboard[rowIndex2][column]
     // moves
     if(row === startRow) {
+        let pieceInFront2 = chessboard[rowIndex2][column]
         if(pieceInFront.type === types.none) {
             possibleMoves.addMove((rowIndex1) + '' + column)
         }
@@ -499,7 +655,7 @@ const pawnMoves = (row, column, otherColor) => {
 }
 
 const knightMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
     
     // Move and capture up right
     try {
@@ -593,7 +749,7 @@ const knightMoves = (row, column, otherColor) => {
 }
 
 const bishopMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
     // first diagonal movement and capture
 
     // default values
@@ -665,7 +821,7 @@ const bishopMoves = (row, column, otherColor) => {
 }
 
 const rookMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
 
     // Row movement and capture
     let i = row
@@ -732,7 +888,7 @@ const rookMoves = (row, column, otherColor) => {
 }
 
 const queenMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
 
     // Row movement and capture
     let i = row
@@ -871,7 +1027,7 @@ const queenMoves = (row, column, otherColor) => {
 }
 
 const kingMoves = (row, column, otherColor) => {
-    let possibleMoves = new PossibleMoves()
+    //let possibleMoves = new PossibleMoves()
     for(let r = row -1; r <= row + 1; r++){
         for(let c = column - 1; c <= column + 1; c++){
             if(r === row && c === column){
