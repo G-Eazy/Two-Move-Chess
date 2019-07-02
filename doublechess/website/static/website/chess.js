@@ -781,10 +781,18 @@ const pawnMoves = (row, column, otherColor) => {
     let pieceInFrontRight = null
     let pieceInFrontLeft = null
     if(column + 1 <= 7) {
-        pieceInFrontRight = chessboard[pieceFrontRightIndex[0]][pieceFrontRightIndex[1]]    
+        if(otherColor === colors.black) {
+            pieceInFrontRight = chessboard[pieceFrontRightIndex[0]][pieceFrontRightIndex[1]]    
+        } else {
+            pieceInFrontLeft = chessboard[pieceFrontLeftIndex[0]][pieceFrontLeftIndex[1]]
+        }
     }
-    if(column -1 >= 0) {
-        pieceInFrontLeft = chessboard[pieceFrontLeftIndex[0]][pieceFrontLeftIndex[1]]
+    if(column - 1 >= 0) {
+        if(otherColor === colors.black) {
+            pieceInFrontLeft = chessboard[pieceFrontLeftIndex[0]][pieceFrontLeftIndex[1]]
+        } else {
+            pieceInFrontRight = chessboard[pieceFrontRightIndex[0]][pieceFrontRightIndex[1]]    
+        }
     }
    
     // captures
