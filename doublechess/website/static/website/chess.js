@@ -48,6 +48,13 @@ class PossibleMoves {
 var possibleMoves = new PossibleMoves()
 var currentPiece, lastCurrentPiece = null
 var currentSquare, lastCurrentSquare = null;
+
+var whiteKingMoved = false
+var whiteHRookMoved = false
+var whiteARookMoved = false
+var blackKingMoved = false
+var blackHRookMoved = false
+var blackARookMoved = false
 //for use later
 var turn = colors.white
 
@@ -344,6 +351,77 @@ const movePiece = (squareFrom, squareTo, capture) => {
             return
         }
     }
+
+    
+    // Castling state
+    if(piece.type === types.king) {
+        if(piece.color === colors.white) {
+            if(! whiteKingMoved && squareToColumn === 6) {
+                chessboard[7][6] = piece
+                chessboard[7][5] = chessboard[7][7]
+                chessboard[7][7] = new Piece(0)
+                whiteHRookMoved = true
+                addMoveString(piece, squareFrom, squareTo, capture, null, true) /// why can i not skip unused variables
+                whiteKingMoved = true
+                return
+            
+            }
+            else if(! whiteKingMoved && squareToColumn === 2) {
+                chessboard[7][2] = piece
+                chessboard[7][3] = chessboard[7][7]
+                chessboard[7][0] = new Piece(0)
+                whiteARookMoved = true
+                addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
+                whiteKingMoved = true
+                return
+            }
+            whiteKingMoved = true
+        }
+        else {
+            if(! blackKingMoved && squareToColumn === 6) {
+                chessboard[0][6] = piece
+                chessboard[0][5] = chessboard[0][7]
+                chessboard[0][7] = new Piece(0)
+                blackHRookMoved = true
+                addMoveString(piece, squareFrom, squareTo, capture, null, true) 
+                blackKingMoved = true
+                return
+            
+            }
+            else if(! blackKingMoved && squareToColumn === 2) {
+                chessboard[0][2] = piece
+                chessboard[0][3] = chessboard[0][7]
+                chessboard[0][0] = new Piece(0)
+                blackARookMoved = true
+                addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
+                blackKingMoved = true
+                return
+            }
+            blackKingMoved = true
+        }
+
+    } 
+    else if(piece.type === types.rook) {
+        if(piece.color === colors.white) {
+            if(squareFromColumn === 0) {
+                whiteARookMoved = true
+            }
+            else if(squareFromColumn === 7) {
+                whiteHRookMoved = true
+            }
+        }
+        else {
+            if(squareFromColumn === 0) {
+                blackARookMoved = true
+            }
+            else if(squareFromColumn === 7) {
+                blackHRookMoved = true
+            }
+        
+        }
+    }
+
+
     chessboard[squareToRow][squareToColumn] = piece
     addMoveString(piece, squareFrom, squareTo, capture) 
 } 
@@ -378,9 +456,22 @@ const promotion = (color) => {
     return promotionPiece 
 }
 
-const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null) => {
+const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null, shortCastles=false, longCastles=false) => {
 
     let moveString = ""
+    
+    if(shortCastles) {
+        moveString += "O-O"
+        moves.push(moveString)
+        updatePreviousMovesDisplay(moves)
+        return
+    }
+    else if(longCastles) {
+        moveString += "O-O-O"
+        moves.push(moveString)
+        updatePreviousMovesDisplay(moves)
+        return
+    }
 
     if(piece.type === types.pawn && capture) {
         moveString += getLetterFromId(squareFrom.id)
@@ -1078,6 +1169,31 @@ const kingMoves = (row, column, otherColor) => {
             }
         }
     }
+
+    // White king short castling
+    if(otherColor === colors.black && !whiteKingMoved && !whiteHRookMoved 
+        && chessboard[7][5].type === types.none && chessboard[7][6].type === types.none) {
+        possibleMoves.addMove(7 + "" + 6)
+    }
+    // White king long castling
+    if(otherColor === colors.black && !whiteKingMoved && !whiteARookMoved 
+        && chessboard[7][1].type === types.none && chessboard[7][2].type === types.none
+        && chessboard[7][3].type === types.none) {
+        possibleMoves.addMove(7 + "" + 2)
+    }
+    
+    // Black king short castling
+    if(otherColor === colors.white && !blackKingMoved && !blackHRookMoved 
+        && chessboard[0][5].type === types.none && chessboard[0][6].type === types.none) {
+        possibleMoves.addMove(0 + "" + 6)
+    }
+    // Black king long castling
+    if(otherColor === colors.white && !blackKingMoved && !blackARookMoved 
+        && chessboard[0][1].type === types.none && chessboard[0][2].type === types.none
+        && chessboard[0][3].type === types.none) {
+        possibleMoves.addMove(0 + "" + 2)
+    }
+    
     return possibleMoves
 }
 
