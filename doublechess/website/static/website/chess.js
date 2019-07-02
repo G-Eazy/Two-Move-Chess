@@ -76,8 +76,29 @@ const chessboard = [
 
 const moves = []
 
+clearPreviousMovesDisplay = () =>{
+    whiteMoveBar = document.getElementById("white-move-display")
+    blackMoveBar = document.getElementById("black-move-display")
+    sideBar = document.getElementById("move-sidebar")
+
+    while(whiteMoveBar.firstChild){
+        whiteMoveBar.removeChild(whiteMoveBar.firstChild)
+    }
+    
+    while(blackMoveBar.firstChild){
+        blackMoveBar.removeChild(blackMoveBar.firstChild)
+    }
+
+    while(sideBar.firstChild){
+        sideBar.removeChild(sideBar.firstChild)
+    }
+
+}
+
 // takes a list of moves as parameter, and displays them in the move display
 updatePreviousMovesDisplay = moves => {
+
+    clearPreviousMovesDisplay()
 
     if(moves.length === 0){
         return
