@@ -247,25 +247,21 @@ const renderChessboard = () => {
 
 // This function is called when a square is clicked
 const selectSquare = id => {
-    console.log("Pressed square:" + id)
-    console.log("MOVES")
-    for(let elem of moves) {
-        console.log(elem)
-    } 
+    //console.log("Pressed square:" + id)
     // No current piece selected
     if(currentPiece == null) {
-        console.log("no piece selected")
+        //console.log("no piece selected")
         currentPiece = getPieceById(id)
         currentSquare = document.getElementById(id)
         // Square selected is empty square 
         if(currentPiece.type == types.none) {
-            console.log("piece selected is empty square")
+            //console.log("piece selected is empty square")
             clearMovesAndCaptures()
             return
         }
         // Square selected holds a piece
         else {
-            console.log("piece selected is new piece")
+            //console.log("piece selected is new piece")
             currentPiece = getPieceById(id)
             currentSquare = document.getElementById(id)
             
@@ -276,7 +272,7 @@ const selectSquare = id => {
         
     }
     else {
-        console.log("Current piece selected : " + currentPiece.type)
+        //console.log("Current piece selected : " + currentPiece.type)
         lastCurrentPiece = currentPiece 
         lastCurrentSquare = currentSquare
 
@@ -290,48 +286,40 @@ const selectSquare = id => {
         
         // Move to empty square
         if(currentPiece.type === types.none) {
-            console.log("moving to empty square")
+            //console.log("moving to empty square")
             movePiece(lastCurrentSquare, currentSquare, false)
             clearMovesAndCaptures()
         }
         // Capture enemy piece
         else if(lastCurrentPiece.color != currentPiece.color) {
-            console.log("capturing enemy piece")
+            //console.log("capturing enemy piece")
             movePiece(lastCurrentSquare, currentSquare, true)
             clearMovesAndCaptures()
         }
         else {
-            console.log("clearing moves and captures")
+            //console.log("clearing moves and captures")
             clearMovesAndCaptures()
             return
         }
 
         // Move or capture has been made
-        console.log("rendering pieces")
+        //console.log("rendering pieces")
         renderPieces()
-        try {
-            console.log(`>>> CP: ${currentPiece.type}\n>>> CS: ${currentSquare.id}\n>>> LCP: ${lastCurrentPiece.type}\n>>> LCS: ${lastCurrentSquare.id}`)
-        } catch (error) {
-            console.log("Some value is null")}
     }
 }
 
 const legalMove = () => {
-    console.log("Possible moves: ")
     for(let elem of possibleMoves.moves) {
-        console.log("elem:" + elem)
         if(currentSquare.id === elem) {
             return true
         } 
     }
-    console.log("Possible captures: ")
     for(let elem of possibleMoves.captures) {
-        console.log("elem:" + elem)
         if(currentSquare.id === elem) {
             return true
         } 
     }
-    console.log("Illegal move")
+    //console.log("Illegal move")
     return false
 }
 
@@ -343,13 +331,54 @@ const movePiece = (squareFrom, squareTo, capture) => {
     let squareToRow = parseInt(squareTo.id.substring(0, 1))
     let squareToColumn = parseInt(squareTo.id.substring(1, 2))
     let piece = getPieceById(squareFrom.id)
+    let promotionPiece = null
+
     chessboard[squareFromRow][squareFromColumn] = new Piece(0)
+    // Case of pawn promotion
+    if(piece.type === types.pawn) {
+        if((piece.color === colors.white && squareToRow === 0) 
+            || (piece.color === colors.black && squareToRow === 7)) {
+            promotionPiece = promotion(piece.color)
+            chessboard[squareToRow][squareToColumn] = promotionPiece
+            addMoveString(piece, squareFrom, squareTo, capture, promotionPiece) 
+            return
+        }
+    }
     chessboard[squareToRow][squareToColumn] = piece
-    
     addMoveString(piece, squareFrom, squareTo, capture) 
 } 
 
-const addMoveString = (piece, squareFrom, squareTo, capture) => {
+const promotion = (color) => {
+    var promotion = prompt("Q, R, B, N")
+    let promotionPiece = null
+    if(promotion == "Q") {
+        promotionPiece = new Piece(types.queen, color)
+    }
+    else if(promotion == "R") {
+        promotionPiece = new Piece(types.rook, color)
+    }
+    else if(promotion == "B") {
+        promotionPiece = new Piece(types.bishop, color)
+    }
+    else if(promotion == "N") {
+        promotionPiece = new Piece(types.knight, color)
+    }
+    
+    try {
+        console.log("promotion:" + promotion)
+    } catch (error) {
+        console.log(promotion == null)
+    }
+    // This doesnt work. Probably needs a html element and a form
+    if(promotion == null || promotion == "") {
+        //promotion(color)
+        alert("congrats you broke my code")
+    
+    }
+    return promotionPiece 
+}
+
+const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null) => {
 
     let moveString = ""
 
@@ -366,6 +395,10 @@ const addMoveString = (piece, squareFrom, squareTo, capture) => {
     }
 
     moveString += getLetterFromId(squareTo.id) + (8 - parseInt(squareTo.id.substring(0, 1)))
+    
+    if(promotionPiece != null) {
+        moveString += "=" + typeIdToTypeName(promotionPiece.type)
+    }
     moves.push(moveString)
     updatePreviousMovesDisplay(moves)
 }
