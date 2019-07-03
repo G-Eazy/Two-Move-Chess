@@ -55,9 +55,11 @@ var whiteARookMoved = false
 var blackKingMoved = false
 var blackHRookMoved = false
 var blackARookMoved = false
+
+// current move being displayed. Should be an integer
+var moveInFocus = null
 //for use later
 var turn = colors.white
-
 
 const chessboard = [
     [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
@@ -74,83 +76,88 @@ const chessboard = [
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
 ]
 
+
 const moves = []
+removeAllChildren = htmlElement => {
+
+    while(htmlElement.firstChild){
+        htmlElement.removeChild(htmlElement.firstChild)
+    }
+
+}
+
+changeDisplayFocus = moveID => {
+
+    if(moveInFocus != null){
+        document.getElementById("move"+moveInFocus).style.backgroundColor = null
+    }
+    document.getElementById(moveID).style.backgroundColor = ("#AAAACC")
+    moveInFocus = moveID.replace("move", "")
+} 
 
 clearPreviousMovesDisplay = () =>{
-    whiteMoveBar = document.getElementById("white-move-display")
-    blackMoveBar = document.getElementById("black-move-display")
-    sideBar = document.getElementById("move-sidebar")
+    removeAllChildren(document.getElementById("white-moves-1"))
+    removeAllChildren(document.getElementById("white-moves-2"))
+    removeAllChildren(document.getElementById("black-moves-1"))
+    removeAllChildren(document.getElementById("black-moves-2"))
+    removeAllChildren(document.getElementById("side-bar"))
+}
 
-    while(whiteMoveBar.firstChild){
-        whiteMoveBar.removeChild(whiteMoveBar.firstChild)
-    }
-    
-    while(blackMoveBar.firstChild){
-        blackMoveBar.removeChild(blackMoveBar.firstChild)
-    }
+createMoveItem = (innerHTML, id) => {
+    let element = document.createElement("div")
+    element.className = "move-item"
+    element.innerHTML = innerHTML
+    element.id = id
+    element.addEventListener("click", e => {
+        changeDisplayFocus(e.target.id)
+    })
+    return element;
+}
 
-    while(sideBar.firstChild){
-        sideBar.removeChild(sideBar.firstChild)
-    }
-
+createSidebarItem = innerHTML => {
+    let element = document.createElement("div")
+    element.className = "sidebar-item"
+    element.innerHTML = innerHTML
+    return element;
 }
 
 // takes a list of moves as parameter, and displays them in the move display
 updatePreviousMovesDisplay = moves => {
 
     clearPreviousMovesDisplay()
+    let whiteMoves1 = document.getElementById("white-moves-1")
+    let whiteMoves2 = document.getElementById("white-moves-2")
+    let blackMoves1 = document.getElementById("black-moves-1")
+    let blackMoves2 = document.getElementById("black-moves-2")
+    let sideBar = document.getElementById("side-bar")
 
-    if(moves.length === 0){
+    if(moves.length >= 1){  
+        sideBar.appendChild(createSidebarItem("1"))
+        let element = document.createElement("div")
+        element.className = "move-fillitem"
+        whiteMoves1.appendChild(element)
+    }else{
         return
     }
-    whiteMoveBar = document.getElementById("white-move-display")
-    blackMoveBar = document.getElementById("black-move-display")
-    sideBar = document.getElementById("move-sidebar")
-    sideBar.appendChild(getDisplayElement("1", false))
-    whiteMoveBar.appendChild(getDisplayElement("", false, moves[0]))
-
-    for(let i = 1; i < moves.length; i++){
-
-        if(i % 4 === 1 && moves.length >= i){
-            blackMoveBar.appendChild(getDisplayElement(moves[i], true, moves[i+1]))
-            i++
+    let id = null
+    for(let i = 0; i < moves.length; i++){
+        id = ("move" + (i+1)) 
+        if(i % 4 === 0){
+            whiteMoves2.appendChild(createMoveItem(moves[i], id))
         }else if(i % 4 === 1){
-            blackMoveBar.appendChild(getDisplayElement(moves[i], true))
-        }else if(i % 4 === 3 && moves.length >= i){
-            sideBar.appendChild(getDisplayElement(Math.floor(i/4)+2), false)
-            whiteMoveBar.appendChild(getDisplayElement(moves[i], true, moves[i+1]))
-            i++
+            blackMoves1.appendChild(createMoveItem(moves[i], id))
+        }else if(i % 4 === 2){
+            blackMoves2.appendChild(createMoveItem(moves[i], id))
         }else{
-            whiteMoveBar.appendChild(getDisplayElement(moves[i], true))
+            sideBar.appendChild(createSidebarItem(Math.floor(i / 4) + 2))
+            whiteMoves1.appendChild(createMoveItem(moves[i], id))
         }
-
     }
-}
 
+    changeDisplayFocus(id)
 
-// takes 1 or 2 strings, and makes a html row to be inserted into the move display
-getDisplayElement = (string1, highlight, string2=null) => {
-
-    row = document.createElement("div")
-    row.className = "move-display-row"
-
-    element1 = document.createElement("div")
-
-    if(highlight === true){
-        element1.className = "move-display-row-element"
-    }else{
-        element1.className = "move-display-row-element-nohighlight"
-    }
-    element1.innerHTML = string1
-    row.appendChild(element1)
-
-    if(string2 != null){
-        element2 = document.createElement("div")
-        element2.className = "move-display-row-element"
-        element2.innerHTML = string2
-        row.appendChild(element2)
-    }
-    return row
+    let container = document.getElementsByClassName("move-display-content-row")[0]
+    container.scrollTop = container.scrollHeight - container.offsetHeight
 }
 
 
@@ -274,7 +281,7 @@ const renderChessboard = () => {
 }
 
 // This function is called when a square is clicked
-const selectSquare = id => {
+const selectSquare = async id => {
     //console.log("Pressed square:" + id)
     // No current piece selected
     if(currentPiece == null) {
@@ -315,13 +322,13 @@ const selectSquare = id => {
         // Move to empty square
         if(currentPiece.type === types.none) {
             //console.log("moving to empty square")
-            movePiece(lastCurrentSquare, currentSquare, false)
+            await movePiece(lastCurrentSquare, currentSquare, false)
             clearMovesAndCaptures()
         }
         // Capture enemy piece
         else if(lastCurrentPiece.color != currentPiece.color) {
             //console.log("capturing enemy piece")
-            movePiece(lastCurrentSquare, currentSquare, true)
+            await movePiece(lastCurrentSquare, currentSquare, true)
             clearMovesAndCaptures()
         }
         else {
@@ -351,8 +358,7 @@ const legalMove = () => {
     return false
 }
 
-const movePiece = (squareFrom, squareTo, capture) => {
-
+const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (resolve, reject) =>{
     let squareFromRow = parseInt(squareFrom.id.substring(0, 1))
     let squareFromColumn = parseInt(squareFrom.id.substring(1, 2))
     
@@ -366,10 +372,10 @@ const movePiece = (squareFrom, squareTo, capture) => {
     if(piece.type === types.pawn) {
         if((piece.color === colors.white && squareToRow === 0) 
             || (piece.color === colors.black && squareToRow === 7)) {
-            promotionPiece = promotion(piece.color)
+            promotionPiece = await promotion(piece.color)
             chessboard[squareToRow][squareToColumn] = promotionPiece
             addMoveString(piece, squareFrom, squareTo, capture, promotionPiece) 
-            return
+            return resolve()
         }
     }
 
@@ -384,7 +390,7 @@ const movePiece = (squareFrom, squareTo, capture) => {
                 whiteHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, true) /// why can i not skip unused variables
                 whiteKingMoved = true
-                return
+                return resolve()
             
             }
             else if(! whiteKingMoved && squareToColumn === 2) {
@@ -394,7 +400,7 @@ const movePiece = (squareFrom, squareTo, capture) => {
                 whiteARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
                 whiteKingMoved = true
-                return
+                return resolve()
             }
             whiteKingMoved = true
         }
@@ -406,7 +412,7 @@ const movePiece = (squareFrom, squareTo, capture) => {
                 blackHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, true) 
                 blackKingMoved = true
-                return
+                return resolve()
             
             }
             else if(! blackKingMoved && squareToColumn === 2) {
@@ -416,7 +422,7 @@ const movePiece = (squareFrom, squareTo, capture) => {
                 blackARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
                 blackKingMoved = true
-                return
+                return resolve()
             }
             blackKingMoved = true
         }
@@ -445,10 +451,72 @@ const movePiece = (squareFrom, squareTo, capture) => {
 
     chessboard[squareToRow][squareToColumn] = piece
     addMoveString(piece, squareFrom, squareTo, capture) 
-} 
+    return resolve()
+})}
 
-const promotion = (color) => {
-    var promotion = prompt("Q, R, B, N")
+   
+
+
+const getPromotionType = color => { return new Promise((resolve, reject) => {
+
+    let container = document.getElementsByClassName("chess-board-container")[0]
+    let IDs = ["promotion-queen", "promotion-rook", "promotion-biship", "promotion-knight"]
+    let containerFunction = e => {
+        if(!IDs.includes(e.target.id)){
+            e.stopPropagation()
+        }
+    }
+    container.addEventListener("click", containerFunction, true)
+
+    let popup = document.createElement("div")
+    popup.className = "promotion"
+    popup.id = "promotion"
+    
+    let squares = []
+    for(let i = 0; i < 4; i++){
+        squares.push(document.createElement("div"))
+        if(i === 0 || i === 3){
+            squares[i].className = "promotion-square-dark"
+        }else{
+            squares[i].className = "promotion-square-light"
+        }
+        popup.appendChild(squares[i])
+    }
+
+    let colorText = null
+    if(color === colors.white){
+        colorText = "white"
+    }else{
+        colorText = "black"
+    }
+
+    container.appendChild(popup)
+
+    let returnValues = ["Q", "R", "B", "N"]
+
+    for(let i = 0; i < 4; i++){
+        let piece = document.createElement("div")
+        piece.className = "chess-piece"
+        switch(i){
+            case 0: piece.className += " " + colorText +"_queen"; piece.id = IDs[i]; break;
+            case 1: piece.className += " " + colorText +"_rook";  piece.id = IDs[i]; break;
+            case 2: piece.className += " " + colorText +"_bishop"; piece.id = IDs[i]; break;
+            case 3: piece.className += " " + colorText +"_knight";  piece.id = IDs[i]; break;
+        }
+        squares[i].appendChild(piece)
+        squares[i].addEventListener("click", e => {
+            container.removeEventListener("click", containerFunction, true)
+            e.stopPropagation()
+            return resolve(returnValues[i])
+        }, true)
+    }
+
+})}
+
+
+const promotion = color => {return new Promise(async (resolve, reject) => {
+    var promotion = await getPromotionType(color)
+    document.getElementsByClassName("chess-board-container")[0].removeChild(document.getElementById("promotion"))
     let promotionPiece = null
     if(promotion == "Q") {
         promotionPiece = new Piece(types.queen, color)
@@ -474,8 +542,9 @@ const promotion = (color) => {
         alert("congrats you broke my code")
     
     }
-    return promotionPiece 
-}
+    return resolve(promotionPiece)
+})}
+
 
 const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null, shortCastles=false, longCastles=false) => {
 

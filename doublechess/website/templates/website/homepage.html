@@ -10,23 +10,25 @@
 <div class="chess-board-container">
     <table class="chess-board" id="chess-board"></table>
 </div>
+
 <div class="move-display">
-    <div class="move-display-sidebar">
+    <div class="move-display-header-row">
         <div class="move-display-header"></div>
-        <div class="move-display-side-content" id="move-sidebar"></div>
+        <div class="move-display-header">White</div>
+        <div class="move-display-header">Black</div>
     </div>
-    <div class="move-display-side">
-        <div class="move-display-header">
-            <div>White</div>
+    <div class="move-display-content-row">
+        <div class="move-display-sidebar" id="side-bar"></div>
+        <div class="move-display-move-container">
+            <div class="move-display-column" id="white-moves-1"></div>
+            <div class="move-display-column" id="white-moves-2"></div>
         </div>
-        <div class="move-display-side-content" id="white-move-display"></div>
-    </div>
-    <div class="move-display-side">
-        <div class="move-display-header">
-            <div>Black</div>
+        <div class="move-display-move-container">
+            <div class="move-display-column" id="black-moves-1"></div>
+            <div class="move-display-column" id="black-moves-2"></div>
         </div>
-        <div class="move-display-side-content" id="black-move-display"></div>
     </div>
 </div>
+
 
 {% endblock %}
