@@ -533,18 +533,6 @@ const promotion = color => {return new Promise(async (resolve, reject) => {
     else if(promotion == "N") {
         promotionPiece = new Piece(types.knight, color)
     }
-    
-    try {
-        console.log("promotion:" + promotion)
-    } catch (error) {
-        console.log(promotion == null)
-    }
-    // This doesnt work. Probably needs a html element and a form
-    if(promotion == null || promotion == "") {
-        //promotion(color)
-        alert("congrats you broke my code")
-    
-    }
     return resolve(promotionPiece)
 })}
 
