@@ -1,4 +1,3 @@
-
 // enum for types
 const types = {
     'none':0,
@@ -15,6 +14,13 @@ const colors = {
     'white':0,
     'black':1,
     'none':-1
+}
+// enum for winning / drawing methods
+const methods = {
+    'resignation':-1,
+    'draw':0,
+    'time':1,
+    'mate':2
 }
 
 // Piece class, containing fields type and color.
@@ -363,6 +369,17 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     let conditional = anotherPieceCanJump(piece, squareFrom, squareTo)
 
     chessboard[squareFromRow][squareFromColumn] = new Piece(0)
+        
+    // game over
+    if(chessboard[squareToRow][squareToColumn].type === types.king) {
+        let winner = chessboard[squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
+        chessboard[squareToRow][squareToColumn] = piece
+        renderPieces()
+        gameOver(winner, methods.mate)
+        return
+    }
+
+
     // Case of pawn promotion
     if(piece.type === types.pawn) {
         if((piece.color === colors.white && squareToRow === 0) 
@@ -442,14 +459,42 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
         
         }
     }
-
-
+    
     chessboard[squareToRow][squareToColumn] = piece
     addMoveString(piece, squareFrom, squareTo, capture, conditional) 
     return resolve()
 })}
 
-   
+
+const gameOver = (color, method) => {
+    let winner = color === colors.white ? "white" : "black"
+
+    if(method === methods.draw) {
+        // handle draw
+        alert("draw")
+    } 
+    else if(method === methods.resignation) {
+        // handle resignation
+        alert(winner + " wins by resignation")
+    }
+    else if(method === methods.time) {
+        // handle time 
+        alert(winner + " wins on time")
+    }
+    else if(method === methods.mate) {
+        // handle mate 
+        alert(winner + " wins by checkmate")
+    }
+    else {
+        // handle error in network / session or other 
+        alert("kernel panic!")
+    }
+
+
+    // freeze all moves
+    // render buttons for analysis / new game etc
+
+}
 
 
 const getPromotionType = color => { return new Promise((resolve, reject) => {
