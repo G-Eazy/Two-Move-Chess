@@ -59,7 +59,7 @@ var blackARookMoved = false
 // current move being displayed. Should be an integer
 var moveInFocus = null
 //for use later
-var turn = colors.white
+var turn = 2
 
 const chessboard = [
     [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
@@ -68,7 +68,7 @@ const chessboard = [
         new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(2, 1),new Piece(2, 0),new Piece(3, 1),new Piece(3, 0),new Piece(4, 1),new Piece(4, 0),new Piece(0),new Piece(0)],
+    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
         new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
@@ -282,8 +282,16 @@ const selectSquare = async id => {
         //console.log("no piece selected")
         currentPiece = getPieceById(id)
         currentSquare = document.getElementById(id)
+
+        let legalColor = null
+        if(turn <= 2){
+            legalColor = colors.white
+        }else{
+            legalColor = colors.black
+        }
+
         // Square selected is empty square 
-        if(currentPiece.type == types.none) {
+        if(currentPiece.type == types.none  || legalColor != currentPiece.color) {
             //console.log("piece selected is empty square")
             clearMovesAndCaptures()
             return
@@ -308,7 +316,7 @@ const selectSquare = async id => {
         currentPiece = getPieceById(id)
         currentSquare = document.getElementById(id)
         
-        if(! legalMove()) {
+        if(!legalMove()) {
             clearMovesAndCaptures() 
             return
         }
@@ -334,6 +342,7 @@ const selectSquare = async id => {
         // Move or capture has been made
         //console.log("rendering pieces")
         renderPieces()
+        turn = turn === 4 ? 1 : turn +1
     }
 }
 
