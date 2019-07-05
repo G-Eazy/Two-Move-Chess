@@ -68,7 +68,7 @@ const chessboard = [
         new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
+    [new Piece(2, 1),new Piece(2, 0),new Piece(3, 1),new Piece(3, 0),new Piece(4, 1),new Piece(4, 0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
         new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
@@ -561,8 +561,12 @@ const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null
         moveString += getLetterFromId(squareFrom.id)
     }
     else if (piece.type != types.pawn){
-        // later we can separate equal pieces that can move to same square here
         moveString += typeIdToTypeName(piece.type)
+    }
+    
+    let piecePosition = anotherPieceCanJump(piece, squareFrom, squareTo)
+    if(piecePosition != -1) {
+        moveString += piecePosition
     }
 
     if(capture) {
@@ -638,6 +642,79 @@ const typeIdToTypeName = type => {
     }
 
     return retType
+}
+
+const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
+    // Store current moves 
+    let currentMoves = possibleMoves
+    //possibleMoves = new PossibleMoves() 
+    let string = ""
+
+    let pieces = getPieces(piece.color, piece.type, squareTo)
+    if(pieces.length === 0) {
+        return -1
+    }
+    else {
+        //console.log("SquareFrom:" + squareFrom.id + " SquareTO: " + squareTo.id)
+        for(let sq of pieces) {
+            //console.log("piece: " + sq)
+            let moves = getAvailableMoves(getPieceById(sq), sq)
+            //console.log("moves: ")
+            for(let move of moves.moves) {
+                //console.log(move)
+            }
+            for(let move of moves.captures) {
+                //console.log(move)
+            }
+            if(moves.moves.includes(squareTo.id) 
+            || moves.captures.includes(squareTo.id)) {
+
+                //console.log("match at :"  + sq)
+                if(sameRow(sq, squareFrom.id)) {
+                    //console.log("same row")
+                    string += getLetterFromId(squareFrom.id)
+                }
+                if(sameColumn(sq, squareFrom.id)) {
+                    //console.log("same column")
+                    string += parseInt(squareFrom.id.substring(0, 1))
+                }
+                return string
+            }
+
+        }
+    }
+    // Restore current moves
+    possibleMoves = currentMoves
+    return -1
+}
+
+const sameRow = (square1, square2) => {
+    return (parseInt(square1.substring(0, 1)) === parseInt(square2.substring(0, 1)))
+}
+const sameColumn = (square1, square2) => {
+    return (parseInt(square1.substring(1, 2)) === parseInt(square2.substring(1, 2)))
+}
+
+
+const getPieces = (color, type, square) => {
+    //console.log(`getting pieces of color ${color} and type ${type}`)
+    let pieces = []
+    let rowIndex = 0
+    let columnIndex = 0
+    //console.log(square.id)
+    for(let row of chessboard) {
+        for(let piece of row) {
+            let squareID = (rowIndex + "" + columnIndex)
+            if(piece.color === color && piece.type === type && square.id != squareID) {
+                //console.log("similar piece found at " + squareID)
+                pieces.push(squareID)
+            }
+            columnIndex += 1
+        }
+        rowIndex += 1
+        columnIndex = 0
+    }
+    return pieces
 }
 
 // This function highlights all legal moves
