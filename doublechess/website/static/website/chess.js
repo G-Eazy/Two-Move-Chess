@@ -250,12 +250,9 @@ const renderChessboard = () => {
     let color_counter = 0
 
     for(row_number = 0; row_number < 8; row_number++){
-        
-        let row = document.createElement('tr')
-
         for(col_number = 0; col_number < 8; col_number++){
 
-            let square = document.createElement('td')
+            let square = document.createElement('div')
             square.className = 'chess-square'
             square.id = row_number + '' + col_number
 
@@ -269,13 +266,10 @@ const renderChessboard = () => {
                 selectSquare(square.id)
             });
 
-            row.appendChild(square)
+            chess_board.appendChild(square)
             color_counter += 1
         }
-
         color_counter -= 1
-        chess_board.appendChild(row)
-
     }
 
 }
@@ -459,7 +453,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
 
 const getPromotionType = color => { return new Promise((resolve, reject) => {
 
-    let container = document.getElementsByClassName("chess-board-container")[0]
+    let container = document.getElementById("chess-board")
     let IDs = ["promotion-queen", "promotion-rook", "promotion-biship", "promotion-knight"]
     let containerFunction = e => {
         if(!IDs.includes(e.target.id)){
@@ -516,7 +510,7 @@ const getPromotionType = color => { return new Promise((resolve, reject) => {
 
 const promotion = color => {return new Promise(async (resolve, reject) => {
     var promotion = await getPromotionType(color)
-    document.getElementsByClassName("chess-board-container")[0].removeChild(document.getElementById("promotion"))
+    document.getElementById("chess-board").removeChild(document.getElementById("promotion"))
     let promotionPiece = null
     if(promotion == "Q") {
         promotionPiece = new Piece(types.queen, color)
@@ -1172,12 +1166,25 @@ const getPieceById  = id => {
 }
 
 
+const reverseChessBoard = () => {
+    reverseChildrenOrder(document.getElementById("chess-board"))
+}
+
+// Reverses order of the children of htmlItem. To be used to reverse chessboard
+const reverseChildrenOrder = htmlItem => {
+
+    let firstChild = htmlItem.firstChild
+    while(htmlItem.lastChild != firstChild){
+        let lastItem = htmlItem.lastChild
+        htmlItem.removeChild(lastItem)
+        htmlItem.insertBefore(lastItem, firstChild)
+    }
+}
 
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded',  () => {
     renderChessboard()
     renderPieces()
-    
 });
 
 

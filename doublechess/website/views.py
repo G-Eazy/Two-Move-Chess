@@ -15,6 +15,9 @@ def tutorial(request):
 
     return render(request, 'website/tutorial.html', context)
 
+def twoplayer(request): 
+    context = {}
+    return render(request, 'website/twoplayer.html', context)
 
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")

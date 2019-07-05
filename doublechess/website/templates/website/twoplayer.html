@@ -1,0 +1,51 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+<script src='{% static "website/chess.js"%}'></script>
+{% endblock %}
+
+{% block content %}
+
+<!---
+<div class="chess-board-container">
+    <table class="chess-board" id="chess-board"></table>
+</div>
+--->
+
+<div class="main-grid" id="main-grid">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div class="left-display">
+        <div class="time-display">10:00</div>
+        <div class="user-display">Username2</div>
+        <div class="left-display-body"></div>
+        <div class="user-display">Username1</div>
+        <div class="time-display">10:00</div>
+    </div>
+    <div class="chess-board" id="chess-board"></div>
+    <div class="move-display">
+        <div class="move-display-header-row">
+            <div class="move-display-header"></div>
+            <div class="move-display-header">White</div>
+            <div class="move-display-header">Black</div>
+        </div>
+        <div class="move-display-content-row">
+            <div class="move-display-sidebar" id="side-bar"></div>
+            <div class="move-display-move-container">
+                <div class="move-display-column" id="white-moves-1"></div>
+                <div class="move-display-column" id="white-moves-2"></div>
+            </div>
+            <div class="move-display-move-container">
+                <div class="move-display-column" id="black-moves-1"></div>
+                <div class="move-display-column" id="black-moves-2"></div>
+            </div>
+        </div>
+    </div>
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+
+{% endblock %}

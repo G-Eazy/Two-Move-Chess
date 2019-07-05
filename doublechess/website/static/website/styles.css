@@ -3,7 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Courier New', Courier, monospace;
-    overflow: visible;
+    overflow: auto;
 }
 
 html, body{
@@ -47,40 +47,33 @@ html, body{
 
 .main-content{
     margin-top: 40px;
-    display: flex;
-    flex-direction: row;
+    display: inline-block;
 }
 
-.chess-board-container{
-    overflow: hidden;
-    border-radius: 1%;
-    box-shadow: 0px 0px 4px 1px;
-    margin: 20px;
-    position: relative;
+.main-grid{
+    display: grid;
+    grid-template-rows: 40px 580px 40px;
+    grid-template-columns: 300px 580px 415px;
+    grid-gap: 10px 20px;
+    padding: 5px 15px;
 }
-
 
 .chess-board{
-    margin:0;
-    padding:0;
-    border-collapse: collapse;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    overflow: hidden;
+    border-radius: 1%;
+    box-shadow: 0px 0px 7px;
+    position: relative;
 }
 
 .chess-square{
     position: relative;
-    width:65px;
-    height:65px;
-    box-sizing:border-box;
-    text-align: center;
-    font-weight: bold;
 }
 
 .dark-square{
     background-color: #333355;
-}
-
-.dark-square > .capture{
-    opacity: 0.6;
 }
 
 .light-square{
@@ -91,9 +84,8 @@ html, body{
 .move {
     height: 18px;
     width: 18px;
-    background-color: #bbb;
+    background-color: #daa;
     border-radius: 50%;
-    opacity: 0.7;
     position: absolute;
     left: 0;
     right:0;
@@ -133,7 +125,7 @@ html, body{
 .promotion{
     display: grid;
     overflow: hidden;
-    border: 4px solid #111122;
+    box-shadow:0px 0px 5px 3px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     position: absolute;
@@ -206,15 +198,11 @@ html, body{
 }
 
 .move-display{
-    display: flex;
+    display: grid;
+    grid-template-rows: 1fr 8fr;
     overflow: hidden;
     border-radius: 1%;
-    flex-direction: column;
     box-shadow: 0px 0px 7px;
-    box-sizing: content-box;
-    height: 522px;
-    width: 415px;
-    margin: 20px 0;
     background-color: #F7F7FF;
 }
 
@@ -225,7 +213,6 @@ html, body{
 .move-display-header-row{
     display: grid;
     grid-template-columns: 1fr 2fr 2fr;
-    height: 40px;
     flex-basis: 0;
 }
 
@@ -299,4 +286,29 @@ html, body{
     justify-content: center;
     font-size: 18px;
     font-weight: bold;
+}
+
+.left-display{
+    display:grid;
+    grid-template-rows: 1fr 0.4fr 3fr 0.4fr 1fr;
+    box-shadow: 0px 0px 7px;
+    border-radius: 2%;
+    overflow: hidden;
+    color: #111122;
+}
+
+.time-display{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 45px;  
+}
+
+.user-display{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 25px; 
 }
