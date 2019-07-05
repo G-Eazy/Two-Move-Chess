@@ -276,10 +276,8 @@ const renderChessboard = () => {
 
 // This function is called when a square is clicked
 const selectSquare = async id => {
-    //console.log("Pressed square:" + id)
     // No current piece selected
     if(currentPiece == null) {
-        //console.log("no piece selected")
         currentPiece = getPieceById(id)
         currentSquare = document.getElementById(id)
 
@@ -292,13 +290,11 @@ const selectSquare = async id => {
 
         // Square selected is empty square 
         if(currentPiece.type == types.none  || legalColor != currentPiece.color) {
-            //console.log("piece selected is empty square")
             clearMovesAndCaptures()
             return
         }
         // Square selected holds a piece
         else {
-            //console.log("piece selected is new piece")
             currentPiece = getPieceById(id)
             currentSquare = document.getElementById(id)
             
@@ -309,7 +305,6 @@ const selectSquare = async id => {
         
     }
     else {
-        //console.log("Current piece selected : " + currentPiece.type)
         lastCurrentPiece = currentPiece 
         lastCurrentSquare = currentSquare
 
@@ -323,24 +318,20 @@ const selectSquare = async id => {
         
         // Move to empty square
         if(currentPiece.type === types.none) {
-            //console.log("moving to empty square")
             await movePiece(lastCurrentSquare, currentSquare, false)
             clearMovesAndCaptures()
         }
         // Capture enemy piece
         else if(lastCurrentPiece.color != currentPiece.color) {
-            //console.log("capturing enemy piece")
             await movePiece(lastCurrentSquare, currentSquare, true)
             clearMovesAndCaptures()
         }
         else {
-            //console.log("clearing moves and captures")
             clearMovesAndCaptures()
             return
         }
 
         // Move or capture has been made
-        //console.log("rendering pieces")
         renderPieces()
         turn = turn === 4 ? 1 : turn +1
     }
@@ -357,7 +348,6 @@ const legalMove = () => {
             return true
         } 
     }
-    //console.log("Illegal move")
     return false
 }
 
@@ -369,6 +359,8 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     let squareToColumn = parseInt(squareTo.id.substring(1, 2))
     let piece = getPieceById(squareFrom.id)
     let promotionPiece = null
+    
+    let conditional = anotherPieceCanJump(piece, squareFrom, squareTo)
 
     chessboard[squareFromRow][squareFromColumn] = new Piece(0)
     // Case of pawn promotion
@@ -377,7 +369,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
             || (piece.color === colors.black && squareToRow === 7)) {
             promotionPiece = await promotion(piece.color)
             chessboard[squareToRow][squareToColumn] = promotionPiece
-            addMoveString(piece, squareFrom, squareTo, capture, promotionPiece) 
+            addMoveString(piece, squareFrom, squareTo, capture, null, promotionPiece) 
             return resolve()
         }
     }
@@ -391,7 +383,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[7][5] = chessboard[7][7]
                 chessboard[7][7] = new Piece(0)
                 whiteHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, true) /// why can i not skip unused variables
+                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) /// why can i not skip unused variables
                 whiteKingMoved = true
                 return resolve()
             
@@ -401,7 +393,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[7][3] = chessboard[7][7]
                 chessboard[7][0] = new Piece(0)
                 whiteARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
+                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 whiteKingMoved = true
                 return resolve()
             }
@@ -413,7 +405,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[0][5] = chessboard[0][7]
                 chessboard[0][7] = new Piece(0)
                 blackHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, true) 
+                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) 
                 blackKingMoved = true
                 return resolve()
             
@@ -423,7 +415,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[0][3] = chessboard[0][7]
                 chessboard[0][0] = new Piece(0)
                 blackARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, false, true) 
+                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 blackKingMoved = true
                 return resolve()
             }
@@ -453,7 +445,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
 
 
     chessboard[squareToRow][squareToColumn] = piece
-    addMoveString(piece, squareFrom, squareTo, capture) 
+    addMoveString(piece, squareFrom, squareTo, capture, conditional) 
     return resolve()
 })}
 
@@ -537,7 +529,7 @@ const promotion = color => {return new Promise(async (resolve, reject) => {
 })}
 
 
-const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null, shortCastles=false, longCastles=false) => {
+const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, promotionPiece=null, shortCastles=false, longCastles=false) => {
 
     let moveString = ""
     
@@ -561,9 +553,8 @@ const addMoveString = (piece, squareFrom, squareTo, capture, promotionPiece=null
         moveString += typeIdToTypeName(piece.type)
     }
     
-    let piecePosition = anotherPieceCanJump(piece, squareFrom, squareTo)
-    if(piecePosition != -1) {
-        moveString += piecePosition
+    if(conditional != null) {
+        moveString += conditional 
     }
 
     if(capture) {
@@ -644,45 +635,36 @@ const typeIdToTypeName = type => {
 const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
     // Store current moves 
     let currentMoves = possibleMoves
-    //possibleMoves = new PossibleMoves() 
+    possibleMoves = new PossibleMoves() 
     let string = ""
 
-    let pieces = getPieces(piece.color, piece.type, squareTo)
+    let pieces = getPieces(piece.color, piece.type, squareFrom)
     if(pieces.length === 0) {
-        return -1
+        return null
     }
     else {
-        //console.log("SquareFrom:" + squareFrom.id + " SquareTO: " + squareTo.id)
         for(let sq of pieces) {
-            //console.log("piece: " + sq)
             let moves = getAvailableMoves(getPieceById(sq), sq)
-            //console.log("moves: ")
-            for(let move of moves.moves) {
-                //console.log(move)
-            }
-            for(let move of moves.captures) {
-                //console.log(move)
-            }
             if(moves.moves.includes(squareTo.id) 
-            || moves.captures.includes(squareTo.id)) {
+            || (moves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
-                //console.log("match at :"  + sq)
                 if(sameRow(sq, squareFrom.id)) {
-                    //console.log("same row")
                     string += getLetterFromId(squareFrom.id)
                 }
-                if(sameColumn(sq, squareFrom.id)) {
-                    //console.log("same column")
-                    string += parseInt(squareFrom.id.substring(0, 1))
+                else if(sameColumn(sq, squareFrom.id)) {
+                    string += (8 - parseInt(squareFrom.id.substring(0, 1)))
+                }
+                else {
+                    string += getLetterFromId(squareFrom.id)
                 }
                 return string
             }
-
+        possibleMoves = new PossibleMoves()
         }
     }
     // Restore current moves
     possibleMoves = currentMoves
-    return -1
+    return null
 }
 
 const sameRow = (square1, square2) => {
@@ -694,16 +676,13 @@ const sameColumn = (square1, square2) => {
 
 
 const getPieces = (color, type, square) => {
-    //console.log(`getting pieces of color ${color} and type ${type}`)
     let pieces = []
     let rowIndex = 0
     let columnIndex = 0
-    //console.log(square.id)
     for(let row of chessboard) {
         for(let piece of row) {
             let squareID = (rowIndex + "" + columnIndex)
             if(piece.color === color && piece.type === type && square.id != squareID) {
-                //console.log("similar piece found at " + squareID)
                 pieces.push(squareID)
             }
             columnIndex += 1
