@@ -119,6 +119,7 @@ const changeDisplayFocus = moveID => {
     }else{
         disableMoves()
     }
+    console.log("changeDisplayFocus MIF: " + moveInFocus)
     renderPieces(moveInFocus)
 } 
 
@@ -198,6 +199,7 @@ const updatePreviousMovesDisplay = moves => {
 
 // Renders the pieces the the chessboard datastructure to the html document
 const renderPieces = index => {
+    console.log("index: " + index)
     for(row_number = 0; row_number < 8; row_number++){
         for(col_number = 0; col_number < 8; col_number++){
 
@@ -206,7 +208,6 @@ const renderPieces = index => {
             while(square.firstChild){
                 square.removeChild(square.firstChild)
             }
-
             let piece = makePiece((chessboardHistory[index])[row_number][col_number])
             square.appendChild(piece)
         }
@@ -355,6 +356,7 @@ const selectSquare = async id => {
 
         // Don't change position of this variable. Must happen before movePiece
         moveInFocus += 1
+        console.log("incrementing moveInFocus to " + moveInFocus)
         
         // Move to empty square
         if(currentPiece.type === types.none) {
@@ -372,6 +374,7 @@ const selectSquare = async id => {
         }
 
         // Move or capture has been made
+        console.log("select Square MIF:" + moveInFocus)
         renderPieces(moveInFocus)
         turn = turn === 4 ? 1 : turn +1
     }
@@ -409,6 +412,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     if(chessboardHistory[moveInFocus][squareToRow][squareToColumn].type === types.king) {
         let winner = chessboardHistory[moveInFocus][squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
         chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
+        console.log("move piece MIIF:" + moveInFocus)
         renderPieces(moveInFocus)
         gameOver(winner, methods.mate)
         return
@@ -527,6 +531,7 @@ const gameOver = (color, method) => {
 
 
     // freeze all moves
+    disableMoves()
     // render buttons for analysis / new game etc
 
 }
@@ -748,9 +753,9 @@ const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
     }
     else {
         for(let sq of pieces) {
-            let moves = getAvailableMoves(getPieceById(sq), sq)
-            if(moves.moves.includes(squareTo.id) 
-            || (moves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
+            let pieceMoves = getAvailableMoves(getPieceById(sq), sq)
+            if(pieceMoves.moves.includes(squareTo.id) 
+            || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
                 if(sameRow(sq, squareFrom.id)) {
                     string += getLetterFromId(squareFrom.id)
@@ -1384,6 +1389,7 @@ const initializeMovesAndBoardButtons = () => {
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded', async () => {
     renderChessboard()
+    console.log("domcontentloadded MIF:" + moveInFocus)
     renderPieces(moveInFocus)
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
@@ -1392,6 +1398,54 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 const renderLeftBar = () => {
    initializeResignButton()
+    renderResetGameButton()
+    
          
 } 
 
+const renderResetGameButton = () => {
+    let resetButton = document.getElementById('reset-button')
+    resetButton.addEventListener('click', () => {
+        console.log("reset button pressed")
+        resetGame()
+    });
+    return resetButton; // necessary to return?
+    
+}
+
+const resetGame = () => {
+    console.log("resetting game")
+    // this is the easy fix
+    window.location.replace("/twoplayer/")
+    /* 
+    resetGlobalValues()
+    clearMovesAndCaptures()
+    clearPreviousMovesDisplay()
+    renderChessboard()
+    console.log("reset game MIF:" + moveInFocus)
+    renderPieces(moveInFocus)
+    initializeMovesAndBoardButtons()
+    renderLeftBar()
+    */
+}
+
+const resetGlobalValues = () => {
+
+    // this is the not easy fix
+    //moves = []
+    whiteKingMoved = false
+    whiteHRookMoved = false
+    whiteARookMoved = false
+    blackKingMoved = false
+    blackHRookMoved = false
+    blackARookMoved = false
+    
+    
+    moveInFocus = 0
+    turn = 2
+
+    while(chessboardHistory.length > 1) {
+        chessboardHistory.pop()
+    }
+
+}
