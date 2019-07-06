@@ -14,5 +14,9 @@ def twoplayer(request):
     context = {}
     return render(request, 'website/twoplayer.html', context)
 
+def analysis(request):
+    context = {}
+    return render(request, 'website/analysis.html', context)
+
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")
