@@ -1329,10 +1329,55 @@ const reverseChildrenOrder = htmlItem => {
     }
 }
 
+const changeToMove = moveNumber => {
+    
+    if(moveNumber < 0){
+        return
+    }else if(moveNumber >= chessboardHistory.length){
+        return
+    }else if(chessboardHistory.length === 1){
+        return
+    }else{
+        changeDisplayFocus("move"+moveNumber)
+    }
+
+}
+
+const initializeMovesAndBoardButtons = () => {
+
+    document.addEventListener('keydown', e => {
+        if(e.key === 'ArrowLeft'){
+            changeToMove(moveInFocus -1)
+        }else if(e.key === 'ArrowRight'){
+            changeToMove(moveInFocus + 1)
+        }
+    })
+
+    document.getElementById("left-total").addEventListener("click", () => {
+        changeToMove(0)
+    })
+    document.getElementById("left-single").addEventListener("click", () => {
+        changeToMove(moveInFocus - 1)
+    })
+    document.getElementById("right-single").addEventListener("click", () => {
+        changeToMove(moveInFocus + 1)
+    })
+    document.getElementById("right-total").addEventListener("click", () => {
+        changeToMove(chessboardHistory.length - 1)
+    })
+
+    document.getElementById("reverse-board").addEventListener("click", () => {
+        reverseChessBoard()
+    })
+
+}
+
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded',  () => {
     renderChessboard()
     renderPieces(moveInFocus)
+    updatePreviousMovesDisplay(moves)
+    initializeMovesAndBoardButtons()
 });
 
 

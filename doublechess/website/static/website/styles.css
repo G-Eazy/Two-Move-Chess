@@ -16,10 +16,9 @@ html, body{
     position:fixed;
     margin:auto;
     top:0;
-    height:40px;
+    height:50px;
     width: 100%;
-    background-color:#555577;
-    padding:5px;
+    background-color:#494464;
     z-index: 10;
 }
 
@@ -31,31 +30,32 @@ html, body{
 
 .menu > ul > li{
     height:100%;
-    display: flex;
-    margin: 0px 10px;
-    padding:0px 10px;
+    margin: 0px 17px;
+    overflow: hidden;
 }
 
-.menu > ul > li > a{
+.menu > ul > li > *{
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     font-weight: bold;
     font-size: 22px;
-    text-align: center;
-    vertical-align: middle;
     color:white;
 }
 
 .main-content{
-    margin-top: 40px;
+    margin-top: 50px;
     display: inline-block;
 }
 
 .main-grid{
     display: grid;
-    grid-template-rows: 40px 580px 40px;
-    grid-template-columns: 300px 580px 415px;
-    grid-gap: 10px 20px;
-    padding: 5px 15px;
+    grid-template-rows: 600px 42px;
+    grid-template-columns: 300px 600px 415px;
+    grid-gap: 15px 20px;
+    padding: 20px 15px;
 }
 
 .chess-board{
@@ -285,6 +285,44 @@ html, body{
     font-weight: bold;
 }
 
+.move-display-controller{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: visible;
+    padding: 0px 30px;
+}
+
+.arrow-buttons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+}
+
+.cool-button{
+    display: flex;
+    height: 100%;
+    font-size: 33px;
+    font-weight: bold;
+    overflow: visible;
+    margin: 0px 10px;
+    background-color: inherit;
+    border: none;
+    border-radius: 10%;
+    padding:3px;
+    box-shadow: 0px 0px 5px -2px;
+    background-color: #F7F7FF;
+}
+
+.cool-button:focus{
+    outline: none;
+}
+
+.cool-button:hover{
+    background-color: #EEDDEE;
+}
+
 .left-display{
     display:grid;
     grid-template-rows: 1fr 0.4fr 3fr 0.4fr 1fr;
@@ -292,6 +330,7 @@ html, body{
     border-radius: 2%;
     overflow: hidden;
     color: #111122;
+    background-color: #F7F7FF;
 }
 
 .time-display{
