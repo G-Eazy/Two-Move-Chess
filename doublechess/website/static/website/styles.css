@@ -58,6 +58,14 @@ html, body{
     padding: 20px 15px;
 }
 
+.main-grid-analysis{
+    display: grid;
+    grid-template-rows: 600px 42px;
+    grid-template-columns: 50px 600px 415px;
+    grid-gap: 15px 20px;
+    padding: 20px 15px;
+}
+
 .chess-board{
     display: grid;
     grid-template-columns: repeat(8, 1fr);
