@@ -158,7 +158,6 @@ const createSidebarItem = innerHTML => {
 const initializeResignButton = () => {
     let resignButton = document.getElementById('resign-button')
     resignButton.addEventListener('click', () => {
-        console.log("resign button pressed")
         gameOver(colors.white, methods.resignation)
     });
     return resignButton;
@@ -205,7 +204,6 @@ const updatePreviousMovesDisplay = moves => {
 
 // Renders the pieces the the chessboard datastructure to the html document
 const renderPieces = index => {
-    console.log("index: " + index)
     for(row_number = 0; row_number < 8; row_number++){
         for(col_number = 0; col_number < 8; col_number++){
 
@@ -365,7 +363,6 @@ const selectSquare = async id => {
 
         // Don't change position of this variable. Must happen before movePiece
         moveInFocus += 1
-        console.log("incrementing moveInFocus to " + moveInFocus)
         
         // Move to empty square
         if(currentPiece.type === types.none) {
@@ -383,7 +380,6 @@ const selectSquare = async id => {
         }
 
         // Move or capture has been made
-        console.log("select Square MIF:" + moveInFocus)
         renderPieces(moveInFocus)
         turn = turn === 4 ? 1 : turn +1
     }
@@ -421,7 +417,6 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     if(chessboardHistory[moveInFocus][squareToRow][squareToColumn].type === types.king) {
         let winner = chessboardHistory[moveInFocus][squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
         chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
-        console.log("move piece MIIF:" + moveInFocus)
         renderPieces(moveInFocus)
         gameOver(winner, methods.mate)
         return
@@ -1381,7 +1376,6 @@ const initializeMovesAndBoardButtons = () => {
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded', async () => {
     renderChessboard()
-    console.log("domcontentloadded MIF:" + moveInFocus)
     renderPieces(moveInFocus)
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
@@ -1406,7 +1400,6 @@ const renderResetGameButton = () => {
 }
 
 const resetGame = () => {
-    console.log("resetting game")
     // this is the easy fix
     window.location.replace("/twoplayer/")
     /* 
