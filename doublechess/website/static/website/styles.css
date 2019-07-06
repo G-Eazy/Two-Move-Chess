@@ -199,7 +199,7 @@ html, body{
 
 .move-display{
     display: grid;
-    grid-template-rows: 1fr 8fr;
+    grid-template-rows: 50px auto;
     overflow: hidden;
     border-radius: 1%;
     box-shadow: 0px 0px 7px;
@@ -213,7 +213,6 @@ html, body{
 .move-display-header-row{
     display: grid;
     grid-template-columns: 1fr 2fr 2fr;
-    flex-basis: 0;
 }
 
 .move-display-header{
@@ -228,11 +227,10 @@ html, body{
 .move-display-content-row{
     display: grid;
     grid-template-columns: 1fr 2fr 2fr;
-    flex-grow: 1;
-    flex-basis: 0;
+    grid-template-rows: auto;
     background-color: #222233;
     grid-gap: 1px;
-    overflow-y: auto;
+    overflow: auto;
 }
 
 .move-display-content-row::-webkit-scrollbar{
@@ -273,10 +271,6 @@ html, body{
 
 .move-item:hover{
     background-color: #ddddee;
-}
-
-.move-fillitem{
-    height: 30px;
 }
 
 .sidebar-item{
