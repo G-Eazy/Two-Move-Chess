@@ -347,7 +347,7 @@ const selectSquare = async id => {
 
         chessboardHistory.push(copyChessboard(chessboardHistory[chessboardHistory.length -1]))
 
-        //This is super weird, but moveInFocus somehow turns into a string
+        // Don't change position of this variable. Must happen before movePiece
         moveInFocus += 1
         
         // Move to empty square
@@ -525,23 +525,33 @@ const gameOver = (color, method) => {
 
 }
 
-const disableMovesHelpfunction = e => {
+const disableHelpfunction = e => {
 
     if(e.target.getAttribute('data-eventstatus') != 'letthrough'){
         e.stopPropagation()
     }
 }
 
+const disableMovesDisplay = e => {
+    let container = document.getElementById("move-display")
+    container.addEventListener("click", disableHelpfunction, true)
+}
+
+const reenableMovesDisplay = e => {
+    let container = document.getElementById("move-display")
+    container.removeEventListener("click", disableHelpfunction, true)
+}
+
 // Important. Any element on the chessboard that still need to get events, should have the 
 // attribute data-eventstatus equal to 'letthrough
 const disableMoves = () => {
     let container = document.getElementById("chess-board")
-    container.addEventListener("click", disableMovesHelpfunction, true)
+    container.addEventListener("click", disableHelpfunction, true)
 }
 
 const reenableMoves = () => {
     let container = document.getElementById("chess-board")
-    container.removeEventListener("click", disableMovesHelpfunction, true)
+    container.removeEventListener("click", disableHelpfunction, true)
 }
 
 const getPromotionType = color => { return new Promise((resolve, reject) => {
@@ -596,7 +606,9 @@ const getPromotionType = color => { return new Promise((resolve, reject) => {
 
 
 const promotion = color => {return new Promise(async (resolve, reject) => {
+    disableMovesDisplay()
     var promotion = await getPromotionType(color)
+    reenableMovesDisplay()
     document.getElementById("chess-board").removeChild(document.getElementById("promotion"))
     let promotionPiece = null
     if(promotion == "Q") {
