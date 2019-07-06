@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block head %}
+<script src='{% static "website/time.js"%}'></script>
 <script src='{% static "website/chess.js"%}'></script>
 {% endblock %}
 
@@ -21,6 +22,7 @@
         <div class="time-display">10:00</div>
         <div class="user-display">Username2</div>
         <div class="left-display-body"></div>
+        <button class="resign-box" id="resign-button">resign</button>
         <div class="user-display">Username1</div>
         <div class="time-display">10:00</div>
     </div>
@@ -46,6 +48,4 @@
     <div></div>
     <div></div>
     <div></div>
-</div>
-
 {% endblock %}
