@@ -73,7 +73,7 @@ html, body{
 }
 
 .dark-square{
-    background-color: #333355;
+    background-color: #494979
 }
 
 .light-square{
@@ -244,6 +244,7 @@ html, body{
 
 .move-display-sidebar{
     display: flex;
+    overflow: visible;
     flex-direction: column;
     background-color: #F7F7FF;
 }
@@ -261,6 +262,7 @@ html, body{
 
 .move-item{
     display: flex;
+    flex-shrink: 0px;
     height: 30px;
     font-size: 18px;
     font-weight: bold;
@@ -275,6 +277,7 @@ html, body{
 
 .sidebar-item{
     height: 30px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
