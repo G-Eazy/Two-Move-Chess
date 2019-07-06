@@ -62,6 +62,9 @@ var blackKingMoved = false
 var blackHRookMoved = false
 var blackARookMoved = false
 
+var allowFocusChange = true
+var allowMoves = true
+
 // current move being displayed. Should be an integer
 var moveInFocus = 0
 //for use later
@@ -115,9 +118,9 @@ const changeDisplayFocus = moveID => {
     moveInFocus = parseInt(moveID.replace("move", ""))
 
     if(moveInFocus === chessboardHistory.length - 1){
-        reenableMoves()
+        allowMoves = true
     }else{
-        disableMoves()
+        allowMoves = false
     }
     console.log("changeDisplayFocus MIF: " + moveInFocus)
     renderPieces(moveInFocus)
@@ -137,6 +140,9 @@ const createMoveItem = (innerHTML, id) => {
     element.innerHTML = innerHTML
     element.id = id
     element.addEventListener("click", e => {
+        if(!allowFocusChange){
+            return
+        }
         changeDisplayFocus(e.target.id)
     })
     return element;
@@ -299,6 +305,9 @@ const renderChessboard = () => {
             }
             
             square.addEventListener('click', () => {
+                if(!allowFocusChange || !allowMoves){
+                    return
+                }
                 selectSquare(square.id)
             });
 
@@ -536,38 +545,8 @@ const gameOver = (color, method) => {
 
 }
 
-const disableHelpfunction = e => {
-
-    if(e.target.getAttribute('data-eventstatus') != 'letthrough'){
-        e.stopPropagation()
-    }
-}
-
-const disableMovesDisplay = e => {
-    let container = document.getElementById("move-display")
-    container.addEventListener("click", disableHelpfunction, true)
-}
-
-const reenableMovesDisplay = e => {
-    let container = document.getElementById("move-display")
-    container.removeEventListener("click", disableHelpfunction, true)
-}
-
-// Important. Any element on the chessboard that still need to get events, should have the 
-// attribute data-eventstatus equal to 'letthrough
-const disableMoves = () => {
-    let container = document.getElementById("chess-board")
-    container.addEventListener("click", disableHelpfunction, true)
-}
-
-const reenableMoves = () => {
-    let container = document.getElementById("chess-board")
-    container.removeEventListener("click", disableHelpfunction, true)
-}
-
 const getPromotionType = color => { return new Promise((resolve, reject) => {
     let container = document.getElementById("chess-board")
-    disableMoves()
     let IDs = ["promotion-queen", "promotion-rook", "promotion-biship", "promotion-knight"]
     let popup = document.createElement("div")
     popup.className = "promotion"
@@ -607,8 +586,6 @@ const getPromotionType = color => { return new Promise((resolve, reject) => {
         piece.setAttribute("data-eventstatus", "letthrough")
         squares[i].appendChild(piece)
         piece.addEventListener("click", e => {
-            reenableMoves()
-            e.stopPropagation()
             return resolve(returnValues[i])
         }, true)
     }
@@ -617,9 +594,9 @@ const getPromotionType = color => { return new Promise((resolve, reject) => {
 
 
 const promotion = color => {return new Promise(async (resolve, reject) => {
-    disableMovesDisplay()
+    allowFocusChange = false
     var promotion = await getPromotionType(color)
-    reenableMovesDisplay()
+    allowFocusChange = true
     document.getElementById("chess-board").removeChild(document.getElementById("promotion"))
     let promotionPiece = null
     if(promotion == "Q") {
@@ -1360,6 +1337,9 @@ const changeToMove = moveNumber => {
 const initializeMovesAndBoardButtons = () => {
 
     document.addEventListener('keydown', e => {
+        if(allowFocusChange === false){
+            return
+        }
         if(e.key === 'ArrowLeft'){
             changeToMove(moveInFocus -1)
         }else if(e.key === 'ArrowRight'){
@@ -1368,15 +1348,27 @@ const initializeMovesAndBoardButtons = () => {
     })
 
     document.getElementById("left-total").addEventListener("click", () => {
+        if(allowFocusChange === false){
+            return
+        }
         changeToMove(0)
     })
     document.getElementById("left-single").addEventListener("click", () => {
+        if(allowFocusChange === false){
+            return
+        }
         changeToMove(moveInFocus - 1)
     })
     document.getElementById("right-single").addEventListener("click", () => {
+        if(allowFocusChange === false){
+            return
+        }
         changeToMove(moveInFocus + 1)
     })
     document.getElementById("right-total").addEventListener("click", () => {
+        if(allowFocusChange === false){
+            return
+        }
         changeToMove(chessboardHistory.length - 1)
     })
 
