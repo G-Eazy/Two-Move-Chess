@@ -356,3 +356,10 @@ html, body{
     font-weight: bold;
     font-size: 25px; 
 }
+
+.resign-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+}

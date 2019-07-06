@@ -107,7 +107,7 @@ removeAllChildren = htmlElement => {
 
 }
 
-changeDisplayFocus = moveID => {
+const changeDisplayFocus = moveID => {
     if(moveInFocus != null){
         document.getElementById("move"+moveInFocus).style.backgroundColor = null
     }
@@ -122,7 +122,7 @@ changeDisplayFocus = moveID => {
     renderPieces(moveInFocus)
 } 
 
-clearPreviousMovesDisplay = () =>{
+const clearPreviousMovesDisplay = () =>{
     removeAllChildren(document.getElementById("white-moves-1"))
     removeAllChildren(document.getElementById("white-moves-2"))
     removeAllChildren(document.getElementById("black-moves-1"))
@@ -130,7 +130,7 @@ clearPreviousMovesDisplay = () =>{
     removeAllChildren(document.getElementById("side-bar"))
 }
 
-createMoveItem = (innerHTML, id) => {
+const createMoveItem = (innerHTML, id) => {
     let element = document.createElement("div")
     element.className = "move-item"
     element.innerHTML = innerHTML
@@ -141,15 +141,24 @@ createMoveItem = (innerHTML, id) => {
     return element;
 }
 
-createSidebarItem = innerHTML => {
+const createSidebarItem = innerHTML => {
     let element = document.createElement("div")
     element.className = "sidebar-item"
     element.innerHTML = innerHTML
     return element;
 }
 
+const initializeResignButton = () => {
+    let resignButton = document.getElementById('resign-button')
+    resignButton.addEventListener('click', () => {
+        console.log("resign button pressed")
+        gameOver(colors.white, methods.resignation)
+    });
+    return resignButton;
+
+}
 // takes a list of moves as parameter, and displays them in the move display
-updatePreviousMovesDisplay = moves => {
+const updatePreviousMovesDisplay = moves => {
 
     clearPreviousMovesDisplay()
     let whiteMoves1 = document.getElementById("white-moves-1")
@@ -1373,11 +1382,16 @@ const initializeMovesAndBoardButtons = () => {
 }
 
 // Is called when the HTML content is done loading
-window.addEventListener('DOMContentLoaded',  () => {
+window.addEventListener('DOMContentLoaded', async () => {
     renderChessboard()
     renderPieces(moveInFocus)
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
+    renderLeftBar()
 });
 
+const renderLeftBar = () => {
+   initializeResignButton()
+         
+} 
 

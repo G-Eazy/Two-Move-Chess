@@ -6,3 +6,9 @@
 
 #django generated file
 *.sqlite3
+
+# gregers files to ignore
+greg_*
+
+# håkons files to ignore
+haak_*
