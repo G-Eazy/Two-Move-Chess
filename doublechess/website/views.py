@@ -3,16 +3,11 @@ from django.http import HttpResponse
 
 
 def homepage(request):
-
-    context = {
-    }
-
+    context = {}
     return render(request, 'website/homepage.html', context)
 
 def tutorial(request):
-
     context = {}
-
     return render(request, 'website/tutorial.html', context)
 
 def twoplayer(request): 
