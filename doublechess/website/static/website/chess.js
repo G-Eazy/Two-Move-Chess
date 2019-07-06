@@ -114,9 +114,6 @@ changeDisplayFocus = moveID => {
     document.getElementById(moveID).style.backgroundColor = ("#AAAACC")
     moveInFocus = parseInt(moveID.replace("move", ""))
 
-    console.log("moveInFocus:", moveInFocus)
-    console.log("length:",chessboardHistory.length)
-
     if(moveInFocus === chessboardHistory.length - 1){
         reenableMoves()
     }else{
