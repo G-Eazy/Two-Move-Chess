@@ -214,8 +214,6 @@ const getPieces2 = (chessboard, color, type, square) => {
     return pieces
 }
 
-
-
 const getAvailableMoves = (chessboard, piece, row, column, cs) => {
     let color = piece.color
 
