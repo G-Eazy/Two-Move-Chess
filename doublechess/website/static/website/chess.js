@@ -1,66 +1,26 @@
-// enum for types
-const types = {
-    'none':0,
-    'pawn': 1,
-    'knight':2,
-    'bishop':3,
-    'rook':4,
-    'queen':5,
-    'king':6
-}
-
-// enum for colors
-const colors = {
-    'white':0,
-    'black':1,
-    'none':-1
-}
 // enum for winning / drawing methods
 const methods = {
-    'resignation':-1,
-    'draw':0,
-    'time':1,
-    'mate':2
+'resignation':-1,
+'draw':0,
+'time':1,
+'mate':2
 }
 
-// Piece class, containing fields type and color.
-class Piece{
-    constructor(type, color = colors.none){
-        this.type = type
-        this.color = color
-    }
+const castlingState = {
+    "whiteKingMoved" : false,
+    "whiteHRookMoved" : false,
+    "whiteARookMoved" : false,
+    "blackKingMoved" : false,
+    "blackHRookMoved" : false,
+    "blackARookMoved" : false
+    
 }
-
-// PossibleMoves class, containing legal moves and captures
-class PossibleMoves {
-    constructor() {
-        this.moves = []
-        this.captures = []
-
-        this.addMove = id => {
-            this.moves.push(id)
-        }
-
-        this.addCapture = id => {
-            this.captures.push(id)
-        }
-
-    }
-}
-
-
 
 // Global variables 
 var possibleMoves = new PossibleMoves()
 var currentPiece, lastCurrentPiece = null
 var currentSquare, lastCurrentSquare = null;
 
-var whiteKingMoved = false
-var whiteHRookMoved = false
-var whiteARookMoved = false
-var blackKingMoved = false
-var blackHRookMoved = false
-var blackARookMoved = false
 
 var allowFocusChange = true
 var allowMoves = true
@@ -70,44 +30,14 @@ var moveInFocus = 0
 //for use later
 var turn = 2
 
-const initialChessboard = [
-    [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
-        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
-    [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
-        new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
-        new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
-    [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
-        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
-]
 
-const chessboardHistory = [initialChessboard]
-
-const copyChessboard = chessboard => {
-
-    let newChessboard = []
-
-    for(let row = 0; row < 8; row++){
-        let newRow = []
-        for(let col = 0; col < 8; col++){
-            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color))
-        }
-        newChessboard.push(newRow)
-    }
-    return newChessboard
-}
-
+const chessboardHistory = getNewChessboardHistory()
 const moves = []
-removeAllChildren = htmlElement => {
 
+const removeAllChildren = htmlElement => {
     while(htmlElement.firstChild){
         htmlElement.removeChild(htmlElement.firstChild)
     }
-
 }
 
 const changeDisplayFocus = moveID => {
@@ -122,7 +52,6 @@ const changeDisplayFocus = moveID => {
     }else{
         allowMoves = false
     }
-    console.log("changeDisplayFocus MIF: " + moveInFocus)
     renderPieces(moveInFocus)
 } 
 
@@ -160,8 +89,6 @@ const initializeResignButton = () => {
     resignButton.addEventListener('click', () => {
         gameOver(colors.white, methods.resignation)
     });
-    return resignButton;
-
 }
 // takes a list of moves as parameter, and displays them in the move display
 const updatePreviousMovesDisplay = moves => {
@@ -321,8 +248,8 @@ const renderChessboard = () => {
 const selectSquare = async id => {
     // No current piece selected
     if(currentPiece == null) {
-        currentPiece = getPieceById(id)
-        currentSquare = document.getElementById(id)
+        currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
+        currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
 
         let legalColor = null
         if(turn <= 2){
@@ -338,10 +265,7 @@ const selectSquare = async id => {
         }
         // Square selected holds a piece
         else {
-            currentPiece = getPieceById(id)
-            currentSquare = document.getElementById(id)
-            
-            possibleMoves = getAvailableMoves(currentPiece, id)
+            possibleMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], currentPiece, currentSquare.row, currentSquare.col, castlingState)
             highlightMoves(possibleMoves.moves)
             highlightCaptures(possibleMoves.captures)
         }
@@ -351,8 +275,8 @@ const selectSquare = async id => {
         lastCurrentPiece = currentPiece 
         lastCurrentSquare = currentSquare
 
-        currentPiece = getPieceById(id)
-        currentSquare = document.getElementById(id)
+        currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
+        currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
         
         if(!legalMove()) {
             clearMovesAndCaptures() 
@@ -438,66 +362,66 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     // Castling state
     if(piece.type === types.king) {
         if(piece.color === colors.white) {
-            if(! whiteKingMoved && squareToColumn === 6) {
+            if(! castlingState.whiteKingMoved && squareToColumn === 6) {
                 chessboardHistory[moveInFocus][7][6] = piece
                 chessboardHistory[moveInFocus][7][5] = chessboardHistory[moveInFocus][7][7]
                 chessboardHistory[moveInFocus][7][7] = new Piece(0)
-                whiteHRookMoved = true
+                castlingState.whiteHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, true) /// why can i not skip unused variables
-                whiteKingMoved = true
+                castlingState.whiteKingMoved = true
                 return resolve()
             
             }
-            else if(! whiteKingMoved && squareToColumn === 2) {
+            else if(! castlingState.whiteKingMoved && squareToColumn === 2) {
                 chessboardHistory[moveInFocus][7][2] = piece
                 chessboardHistory[moveInFocus][7][3] = chessboardHistory[moveInFocus][7][7]
                 chessboardHistory[moveInFocus][7][0] = new Piece(0)
-                whiteARookMoved = true
+                castlingState.whiteARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
-                whiteKingMoved = true
+                castlingState.whiteKingMoved = true
                 return resolve()
             }
-            whiteKingMoved = true
+            castlingState.whiteKingMoved = true
         }
         else {
-            if(! blackKingMoved && squareToColumn === 6) {
+            if(! castlingState.blackKingMoved && squareToColumn === 6) {
                 chessboardHistory[moveInFocus][0][6] = piece
                 chessboardHistory[moveInFocus][0][5] = chessboardHistory[moveInFocus][0][7]
                 chessboardHistory[moveInFocus][0][7] = new Piece(0)
-                blackHRookMoved = true
+                castlingState.blackHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, true) 
-                blackKingMoved = true
+                castlingState.blackKingMoved = true
                 return resolve()
             
             }
-            else if(! blackKingMoved && squareToColumn === 2) {
+            else if(! castlingState.blackKingMoved && squareToColumn === 2) {
                 chessboardHistory[moveInFocus][0][2] = piece
                 chessboardHistory[moveInFocus][0][3] = chessboardHistory[moveInFocus][0][7]
                 chessboardHistory[moveInFocus][0][0] = new Piece(0)
-                blackARookMoved = true
+                castlingState.blackARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
-                blackKingMoved = true
+                castlingState.blackKingMoved = true
                 return resolve()
             }
-            blackKingMoved = true
+            castlingState.blackKingMoved = true
         }
 
     } 
     else if(piece.type === types.rook) {
         if(piece.color === colors.white) {
             if(squareFromColumn === 0) {
-                whiteARookMoved = true
+                castlingState.whiteARookMoved = true
             }
             else if(squareFromColumn === 7) {
-                whiteHRookMoved = true
+                castlingState.whiteHRookMoved = true
             }
         }
         else {
             if(squareFromColumn === 0) {
-                blackARookMoved = true
+                castlingState.blackARookMoved = true
             }
             else if(squareFromColumn === 7) {
-                blackHRookMoved = true
+                castlingState.blackHRookMoved = true
             }
         
         }
@@ -535,7 +459,7 @@ const gameOver = (color, method) => {
 
 
     // freeze all moves
-    disableMoves()
+    allowMoves = false
     // render buttons for analysis / new game etc
 
 }
@@ -611,42 +535,8 @@ const promotion = color => {return new Promise(async (resolve, reject) => {
 
 
 const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, promotionPiece=null, shortCastles=false, longCastles=false) => {
-
-    let moveString = ""
     
-    if(shortCastles) {
-        moveString += "O-O"
-        moves.push(moveString)
-        updatePreviousMovesDisplay(moves)
-        return
-    }
-    else if(longCastles) {
-        moveString += "O-O-O"
-        moves.push(moveString)
-        updatePreviousMovesDisplay(moves)
-        return
-    }
-
-    if(piece.type === types.pawn && capture) {
-        moveString += getLetterFromId(squareFrom.id)
-    }
-    else if (piece.type != types.pawn){
-        moveString += typeIdToTypeName(piece.type)
-    }
-    
-    if(conditional != null) {
-        moveString += conditional 
-    }
-
-    if(capture) {
-        moveString += "x"
-    }
-
-    moveString += getLetterFromId(squareTo.id) + (8 - parseInt(squareTo.id.substring(0, 1)))
-    
-    if(promotionPiece != null) {
-        moveString += "=" + typeIdToTypeName(promotionPiece.type)
-    }
+    let moveString = getMoveString(piece, squareFrom, squareTo, capture, conditional, promotionPiece, shortCastles, longCastles)
     moves.push(moveString)
     updatePreviousMovesDisplay(moves)
 }
@@ -684,34 +574,6 @@ const getLetterFromId = id => {
     return letter
 }
 
-const typeIdToTypeName = type => {
-    let retType = 0
-    switch(type) {
-        case 0:
-            retType = 'none'
-            break
-        case 1:
-            retType = 'P'
-            break
-        case 2:
-            retType = 'N'
-            break
-        case 3:
-            retType = 'B'
-            break
-        case 4:
-            retType = 'R'
-            break
-        case 5:
-            retType = 'Q'
-            break
-        case 6:
-            retType = 'K'
-            break
-    }
-
-    return retType
-}
 
 const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
     // Store current moves 
@@ -725,7 +587,9 @@ const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
     }
     else {
         for(let sq of pieces) {
-            let pieceMoves = getAvailableMoves(getPieceById(sq), sq)
+            let row = parseInt(sq.substring(0, 1))
+            let column = parseInt(sq.substring(1, 2))
+            let pieceMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], piece, row, column, castlingState)
             if(pieceMoves.moves.includes(squareTo.id) 
             || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
@@ -826,474 +690,9 @@ const clearMovesAndCaptures = () => {
     possibleMoves = new PossibleMoves()
 }
 
-// This function returns an object with possible moves and captures
-const getAvailableMoves = (piece, id) => {
-    let color = piece.color
-    let row = parseInt(id.substring(0, 1))
-    let column = parseInt(id.substring(1, 2))
-
-    if(color === colors.white){
-        switch(piece.type) {
-            case types.pawn:
-                return whitePawnMoves(row, column)
-            
-            case types.knight:
-                return whiteKnightMoves(row, column)
-
-            case types.bishop:
-                return whiteBishopMoves(row, column)
-            
-            case types.rook:
-                return whiteRookMoves(row, column)
-            
-            case types.queen:
-                return whiteQueenMoves(row, column)
-            
-            case types.king:
-                return whiteKingMoves(row, column)
-        }
-    }
-    else{
-        switch(piece.type) {
-            case types.pawn:
-                return blackPawnMoves(row, column)
-            
-            case types.knight:
-                return blackKnightMoves(row, column)
-
-            case types.bishop:
-                return blackBishopMoves(row, column)
-            
-            case types.rook:
-                return blackRookMoves(row, column)
-            
-            case types.queen:
-                return blackQueenMoves(row, column)
-            
-            case types.king:
-                return blackKingMoves(row, column)
-        }
-    }
-}
-
-// White pieces
-
-const whitePawnMoves = (row, column) => {
-    return pawnMoves(row, column, colors.black)
-}
-
-const whiteKnightMoves = (row, column) => {
-   return knightMoves(row, column, colors.black) 
-}
-
-const whiteBishopMoves = (row, column) => {
-    return bishopMoves(row, column, colors.black)
-}
-
-const whiteRookMoves = (row, column) => {
-    return rookMoves(row, column, colors.black)
-}
-
-const whiteQueenMoves = (row, column) => {
-    return queenMoves(row, column, colors.black)
-}
-
-const whiteKingMoves = (row, column) => {
-    return kingMoves(row, column, colors.black)
-}
-
-
-
-// Black pieces
-
-const blackPawnMoves = (row, column) => {
-    return pawnMoves(row, column, colors.white)
-}
-
-const blackKnightMoves = (row, column) => {
-    return knightMoves(row, column, colors.white)
-}
-
-const blackBishopMoves = (row, column) => {
-    return bishopMoves(row, column, colors.white)
-}
-
-const blackRookMoves = (row, column) => {
-    return rookMoves(row, column, colors.white)
-}
-
-const blackQueenMoves = (row, column) => {
-    return queenMoves(row, column, colors.white)
-}
-
-const blackKingMoves = (row, column) => {
-    return kingMoves(row, column, colors.white)
-}
-
-
-// Moves
-
-const pawnMoves = (row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
-
-    // black / white variables
-    // pieces in front of pawn
-    let rowIndex1, rowIndex2 = 0    // default value
-    let startRow = 0
-    let pieceFrontLeftIndex, pieceInFrontRightIndex = []
-    if(otherColor === colors.black) {
-        rowIndex1 = row - 1
-        rowIndex2 = row - 2
-        startRow = 6
-        pieceFrontRightIndex = [row-1, column+1]
-        pieceFrontLeftIndex = [row-1, column-1]
-    }
-    else {
-        rowIndex1 = row + 1
-        rowIndex2 = row + 2
-        startRow = 1
-        pieceFrontRightIndex = [row+1, column-1]
-        pieceFrontLeftIndex = [row+1, column+1]
-    }
-
-    let pieceInFront = chessboardHistory[moveInFocus][rowIndex1][column]
-    // moves
-    if(row === startRow) {
-        let pieceInFront2 = chessboardHistory[moveInFocus][rowIndex2][column]
-        if(pieceInFront.type === types.none) {
-            possibleMoves.addMove((rowIndex1) + '' + column)
-        }
-        if(pieceInFront.type == types.none && pieceInFront2.type === types.none) {
-            possibleMoves.addMove((rowIndex2) + '' + column)
-        }
-        
-    }
-    else {
-        if(pieceInFront.type === types.none) {
-            possibleMoves.addMove((rowIndex1) + '' + column)
-        }
-    }
-    
-    // pieces in front-right or front-left of pawn
-    let pieceInFrontRight = null
-    let pieceInFrontLeft = null
-    if(column + 1 <= 7) {
-        if(otherColor === colors.black) {
-            pieceInFrontRight = chessboardHistory[moveInFocus][pieceFrontRightIndex[0]][pieceFrontRightIndex[1]]    
-        } else {
-            pieceInFrontLeft = chessboardHistory[moveInFocus][pieceFrontLeftIndex[0]][pieceFrontLeftIndex[1]]
-        }
-    }
-    if(column - 1 >= 0) {
-        if(otherColor === colors.black) {
-            pieceInFrontLeft = chessboardHistory[moveInFocus][pieceFrontLeftIndex[0]][pieceFrontLeftIndex[1]]
-        } else {
-            pieceInFrontRight = chessboardHistory[moveInFocus][pieceFrontRightIndex[0]][pieceFrontRightIndex[1]]    
-        }
-    }
-   
-    // captures
-    if(pieceInFrontRight != null && pieceInFrontRight.color === otherColor) {
-        possibleMoves.addCapture((pieceFrontRightIndex[0] + "" + pieceFrontRightIndex[1]))
-    }
-    if(pieceInFrontLeft != null && pieceInFrontLeft.color === otherColor) {
-        possibleMoves.addCapture(pieceFrontLeftIndex[0] + "" + pieceFrontLeftIndex[1])
-    }
-    
-    return possibleMoves
-
-}
-
-const knightMoves = (row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
-    
-    // Move and capture up right
-    try {
-        let piece = chessboardHistory[moveInFocus][row - 2][column + 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 2) + "" + (column + 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 2) + "" + (column + 1))
-        }
-    } catch (error) {
-    }
-    // Move and capture up left
-    try {
-        let piece = chessboardHistory[moveInFocus][row - 2][column - 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 2) + "" + (column - 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 2) + "" + (column - 1))
-        }
-    } catch (error) {}
-
-    // Move and capture down right
-    try {
-        let piece = chessboardHistory[moveInFocus][row + 2][column + 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 2) + "" + (column + 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 2) + "" + (column + 1))
-        }
-    } catch (error) {}
-    // Move and capture down left
-    try {
-        let piece = chessboardHistory[moveInFocus][row + 2][column - 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 2) + "" + (column - 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 2) + "" + (column - 1))
-        }
-    } catch (error) {}
-    
-    // Move and capture right up
-    try {
-        let piece = chessboardHistory[moveInFocus][row - 1][column + 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 1) + "" + (column + 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 1) + "" + (column + 2))
-        }
-    } catch (error) {}
-    // Move and capture right down
-    try {
-        let piece = chessboardHistory[moveInFocus][row + 1][column + 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 1) + "" + (column + 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 1) + "" + (column + 2))
-        }
-    } catch (error) {}
-
-    // Move and capture left up
-    try {
-        let piece = chessboardHistory[moveInFocus][row - 1][column - 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 1) + "" + (column - 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 1) + "" + (column - 2))
-        }
-    } catch (error) {}
-
-    // Move and capture left down
-    try {
-        let piece = chessboardHistory[moveInFocus][row + 1][column - 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 1) + "" + (column - 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 1) + "" + (column - 2))
-        }
-    } catch (error) {}
-
-    return possibleMoves
-
-
-}
-
-const bishopMoves = (row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
-    // first diagonal movement and capture
-
-    // default values
-    let i = row
-    let j = column
-    if(row < 7) {
-        for(i = row+1, j = column+1; i <= 7 && j <= 7; i++, j++) {
-            if(chessboardHistory[moveInFocus][i][j].type != types.none) {
-                break
-            }
-            else {
-                possibleMoves.addMove(i + "" + j)
-            }
-        }
-        if(i <= 7 && j <= 7 && chessboardHistory[moveInFocus][i][j].color === otherColor) {
-            possibleMoves.addCapture(i + "" + j)
-        }
-    }
-    if(row > 0) {
-        for(i = row-1, j = column-1; i >= 0 && j >= 0; i--, j--) {
-            if(chessboardHistory[moveInFocus][i][j].type != types.none) {
-                break
-            } 
-            else {
-                possibleMoves.addMove(i + "" + j)
-            }
-        }
-        if(i >= 0 && j >= 0 && chessboardHistory[moveInFocus][i][j].color === otherColor) {
-            possibleMoves.addCapture(i + "" + j)
-        }
-    }
-
-    // second diagonal movement and capture
-    // default values
-    i = row
-    j = column
-    if(column < 7) {
-        for(i = row-1, j = column+1; i >= 0 && j <= 7; i--, j++) {
-            if(chessboardHistory[moveInFocus][i][j].type != types.none) {
-                break
-            }
-            else {
-                possibleMoves.addMove(i + "" + j)
-            }
-            
-            
-        }
-        if(i >= 0 && j <= 7 && chessboardHistory[moveInFocus][i][j].color === otherColor) {
-            possibleMoves.addCapture(i + "" + j)
-        }
-    }
-    
-    if(column > 0) {
-        for(i = row+1, j = column-1; i <= 7 && j >= 0; i++, j--) {
-            if(chessboardHistory[moveInFocus][i][j].type != types.none) {
-                break
-            } 
-            else {
-                possibleMoves.addMove(i + "" + j)
-            }
-        }
-        if(i <= 7 && j >= 0 && chessboardHistory[moveInFocus][i][j].color === otherColor) {
-            possibleMoves.addCapture(i + "" + j)
-        }
-    }
-    
-    return possibleMoves
-
-}
-
-const rookMoves = (row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
-
-    // Row movement and capture
-    let i = row
-    if(row < 7) {
-        for(i = row+1; i <= 7; i++) {
-            if(chessboardHistory[moveInFocus][i][column].type != types.none) {
-                break
-            }
-            else {
-                possibleMoves.addMove(i + "" + column)
-            }
-        }
-        if(i <= 7 && chessboardHistory[moveInFocus][i][column].color === otherColor) {
-            possibleMoves.addCapture(i + "" + column)
-        }
-    }
-    if(row > 0) {
-        for(i = row-1; i >= 0; i--) {
-            if(chessboardHistory[moveInFocus][i][column].type != types.none) {
-                break
-            } 
-            else {
-                possibleMoves.addMove(i + "" + column)
-            }
-        }
-        if(i >= 0 && chessboardHistory[moveInFocus][i][column].color === otherColor) {
-            possibleMoves.addCapture(i + "" + column)
-        }
-    }
-    // Column movement and capture
-    let j = column
-    if(column < 7) {
-        for(j = column+1; j <= 7; j++) {
-            if(chessboardHistory[moveInFocus][row][j].type != types.none) {
-                break
-            }
-            else {
-                possibleMoves.addMove(row + "" + j)
-            }
-            
-            
-        }
-        if(j <= 7 && chessboardHistory[moveInFocus][row][j].color === otherColor) {
-            possibleMoves.addCapture(row + "" + j)
-        }
-    }
-    
-    if(column > 0) {
-        for(j = column-1; j >= 0; j--) {
-            if(chessboardHistory[moveInFocus][row][j].type != types.none) {
-                break
-            } 
-            else {
-                possibleMoves.addMove(row + "" + j)
-            }
-        }
-        if(j >= 0 && chessboardHistory[moveInFocus][row][j].color === otherColor) {
-            possibleMoves.addCapture(row + "" + j)
-        }
-    }
-    
-    return possibleMoves
-
-}
-
-
-const queenMoves = (row, column, otherColor) => {
-    rookMoves(row, column, otherColor)
-    return bishopMoves(row, column, otherColor)
-
-}
-
-
-const kingMoves = (row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
-    for(let r = row -1; r <= row + 1; r++){
-        for(let c = column - 1; c <= column + 1; c++){
-            if(r === row && c === column){
-                continue
-            }
-            try{
-                let piece = chessboardHistory[moveInFocus][r][c]
-                if(piece.color === colors.none){
-                    possibleMoves.addMove(r + "" + c)
-                }else if(piece.color === otherColor){
-                    possibleMoves.addCapture(r + "" + c)
-                }
-            }catch(err){
-
-            }
-        }
-    }
-
-    // White king short castling
-    if(otherColor === colors.black && !whiteKingMoved && !whiteHRookMoved 
-        && chessboardHistory[moveInFocus][7][5].type === types.none && chessboardHistory[moveInFocus][7][6].type === types.none) {
-        possibleMoves.addMove(7 + "" + 6)
-    }
-    // White king long castling
-    if(otherColor === colors.black && !whiteKingMoved && !whiteARookMoved 
-        && chessboardHistory[moveInFocus][7][1].type === types.none && chessboardHistory[moveInFocus][7][2].type === types.none
-        && chessboardHistory[moveInFocus][7][3].type === types.none) {
-        possibleMoves.addMove(7 + "" + 2)
-    }
-    
-    // Black king short castling
-    if(otherColor === colors.white && !blackKingMoved && !blackHRookMoved 
-        && chessboardHistory[moveInFocus][0][5].type === types.none && chessboardHistory[moveInFocus][0][6].type === types.none) {
-        possibleMoves.addMove(0 + "" + 6)
-    }
-    // Black king long castling
-    if(otherColor === colors.white && !blackKingMoved && !blackARookMoved 
-        && chessboardHistory[moveInFocus][0][1].type === types.none && chessboardHistory[moveInFocus][0][2].type === types.none
-        && chessboardHistory[moveInFocus][0][3].type === types.none) {
-        possibleMoves.addMove(0 + "" + 2)
-    }
-    
-    return possibleMoves
-}
 
 // Returns an object of class Piece on a given id (square)
-const getPieceById  = id => {
+const getPieceById = id => {
     let row = parseInt(id.substring(0, 1))
     let column = parseInt(id.substring(1, 2))
     return chessboardHistory[moveInFocus][row][column]
@@ -1380,6 +779,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
     renderLeftBar()
+    // test functions
+    
+
+
+
 });
 
 const renderLeftBar = () => {
@@ -1395,8 +799,6 @@ const renderResetGameButton = () => {
         console.log("reset button pressed")
         resetGame()
     });
-    return resetButton; // necessary to return?
-    
 }
 
 const resetGame = () => {
@@ -1425,7 +827,8 @@ const resetGlobalValues = () => {
     blackHRookMoved = false
     blackARookMoved = false
     
-    
+    allowMoves = true
+    allowFocusChange = true
     moveInFocus = 0
     turn = 2
 
