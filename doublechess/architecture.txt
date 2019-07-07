@@ -1,0 +1,18 @@
+
+file structure:
+    front-end:
+        javascript:
+            chess.js: main file with brain and memory && communicates between engine and gui
+            chess-utils: static chess engine functionality && no connection to gui
+            chess-gui: controls all gui rendering && no connection to chess engine
+                        add event listeners and calls functions in chess.js
+        css:
+            styles.css: all styling
+
+        html [one file for each url]:
+            base.html: base for all urls
+            homepage.html
+            tutorial.html
+            twoplayer.html
+
+
