@@ -324,20 +324,13 @@ const highlightMoves = moves => {
 }
 
 const removeAllMovesAndCaptures = () => {
-
     let squares = document.getElementById("chess-board").children
-    
     for(let i = 0; i < squares.length; i++){
-        
         let children = squares[i].children
         for(let j = 0; j < children.length; j++){
-
             if(children[j].className === 'move' || children[j].className === 'capture'){
                 squares[i].removeChild(children[j])
             }
-
         }
-
     }
-
 }
