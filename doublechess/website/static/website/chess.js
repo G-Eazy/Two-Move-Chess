@@ -1,9 +1,9 @@
 // enum for winning / drawing methods
 const methods = {
-'resignation':-1,
-'draw':0,
-'time':1,
-'mate':2
+    'resignation':-1,
+    'draw':0,
+    'time':1,
+    'mate':2
 }
 
 const castlingState = {
@@ -13,22 +13,32 @@ const castlingState = {
     "blackKingMoved" : false,
     "blackHRookMoved" : false,
     "blackARookMoved" : false
-    
 }
 
+const modes = {
+    'homepage' : 0,
+    'tutorial' : 1, 
+    'debug' : 2,
+    'twoplayer' : 3,
+    'analysis' : 4
+}
+
+
 // Global variables 
+var MODE = null
+
+var timer = null
 var possibleMoves = new PossibleMoves()
 var currentPiece, lastCurrentPiece = null
 var currentSquare, lastCurrentSquare = null;
 
-
+// controls who gets to move pieces
 var allowFocusChange = true
 var allowMoves = true
 
 // current move being displayed. Should be an integer
 var moveInFocus = 0
-//for use later
-var turn = 2
+var turn = 1
 
 
 const chessboardHistory = getNewChessboardHistory()
@@ -246,17 +256,19 @@ const renderChessboard = () => {
 
 // This function is called when a square is clicked
 const selectSquare = async id => {
+    let legalColor = null
+
+    if(turn % 4 === 0 || turn % 4 === 1){
+        legalColor = colors.white
+    }else{
+        legalColor = colors.black
+    }
+
     // No current piece selected
     if(currentPiece == null) {
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
 
-        let legalColor = null
-        if(turn <= 2){
-            legalColor = colors.white
-        }else{
-            legalColor = colors.black
-        }
 
         // Square selected is empty square 
         if(currentPiece.type == types.none  || legalColor != currentPiece.color) {
@@ -299,13 +311,29 @@ const selectSquare = async id => {
             clearMovesAndCaptures()
         }
         else {
+            console.log("shouldnt happen")
             clearMovesAndCaptures()
             return
         }
 
         // Move or capture has been made
         renderPieces(moveInFocus)
-        turn = turn === 4 ? 1 : turn +1
+        turn += 1
+
+        if(MODE === modes.twoplayer) {
+            if(turn === 3) {
+                timer.startTimer()
+            }
+            
+            // turn has switched if true
+            if(legalColor === colors.white && (turn % 4 === 2 || turn % 4 === 3)) {
+                timer.changeTurn(colors.black)
+            }
+            else if(legalColor === colors.black && (turn % 4 === 0 || turn % 4 === 1)) {
+                timer.changeTurn(colors.white)
+            }
+        }
+
     }
 }
 
@@ -460,6 +488,11 @@ const gameOver = (color, method) => {
 
     // freeze all moves
     allowMoves = false
+
+    // Stop timer
+    if(MODE === modes.twoplayer) {
+        timer.stop()
+    }
     // render buttons for analysis / new game etc
 
 }
@@ -774,25 +807,39 @@ const initializeMovesAndBoardButtons = () => {
 
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded', async () => {
+    initializeGlobalVariables()
     renderChessboard()
     renderPieces(moveInFocus)
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
     renderLeftBar()
     // test functions
-    
+        
 
 
 
 });
 
 const renderLeftBar = () => {
-   initializeResignButton()
+    initializeResignButton()
     renderResetGameButton()
+    
+
     
          
 } 
 
+const initializeGlobalVariables = () => {
+    MODE = getMode()
+
+    if(MODE === modes.twoplayer) {
+        timer = new Timer()
+        // preliminary values - to be retrieved from user
+        timer.setDuration(5)
+        timer.setIncrement(3)
+    }
+
+}
 const renderResetGameButton = () => {
     let resetButton = document.getElementById('reset-button')
     resetButton.addEventListener('click', () => {
@@ -820,20 +867,46 @@ const resetGlobalValues = () => {
 
     // this is the not easy fix
     //moves = []
-    whiteKingMoved = false
-    whiteHRookMoved = false
-    whiteARookMoved = false
-    blackKingMoved = false
-    blackHRookMoved = false
-    blackARookMoved = false
+    castlingState.whiteKingMoved = false
+    castlingState.whiteHRookMoved = false
+    castlingState.whiteARookMoved = false
+    castlingState.blackKingMoved = false
+    castlingState.blackHRookMoved = false
+    castlingState.blackARookMoved = false
     
     allowMoves = true
     allowFocusChange = true
     moveInFocus = 0
-    turn = 2
+    turn = 1
 
     while(chessboardHistory.length > 1) {
         chessboardHistory.pop()
     }
 
+}
+
+const getMode = () => { 
+    let url = "" + document.location
+    let mode = null
+    switch(url) {
+        case "http://localhost:8000/":
+            mode = modes.homepage
+            break
+        case "http://localhost:8000/tutorial/":
+            mode = modes.tutorial
+            break
+        case "http://localhost:8000/debug/":
+            mode = modes.homepage
+            break
+        case "http://localhost:8000/twoplayer/":
+            mode = modes.twoplayer
+            break
+        case "http://localhost:8000/analysis/":
+            mode = modes.analysis
+            break
+        default:
+            mode = modes.homepage 
+    }
+
+    return mode
 }

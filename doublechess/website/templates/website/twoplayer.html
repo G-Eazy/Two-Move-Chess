@@ -3,6 +3,7 @@
 
 {% block head %}
 <script src='{% static "website/chess-utils.js"%}'></script>
+<script src='{% static "website/time.js"%}'></script>
 <script src='{% static "website/chess.js"%}'></script>
 {% endblock %}
 
@@ -10,13 +11,13 @@
 
 <div class="main-grid" id="main-grid">
     <div class="left-display">
-        <div class="time-display">10:00</div>
+        <div class="time-display" id="time-top">10:00</div>
         <div class="user-display">Username2</div>
         <div class="left-display-body"></div>
         <button class="reset-box" id="reset-button">reset</button>
         <button class="resign-box" id="resign-button">resign</button>
         <div class="user-display">Username1</div>
-        <div class="time-display">10:00</div>
+        <div class="time-display" id="time-bottom">10:00</div>
     </div>
     <div class="chess-board" id="chess-board"></div>
     <div class="move-display" id="move-display">
