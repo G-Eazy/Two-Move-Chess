@@ -334,3 +334,7 @@ const removeAllMovesAndCaptures = () => {
         }
     }
 }
+
+const reverseTimeDisplay = () => {
+    
+}
