@@ -44,218 +44,27 @@ var turn = 1
 const chessboardHistory = getNewChessboardHistory()
 const moves = []
 
-const removeAllChildren = htmlElement => {
-    while(htmlElement.firstChild){
-        htmlElement.removeChild(htmlElement.firstChild)
-    }
-}
+// Should take an INTEGER
+const changeDisplayFocus = newMoveInFocus => {
 
-const changeDisplayFocus = moveID => {
-    if(moveInFocus != null){
-        document.getElementById("move"+moveInFocus).style.backgroundColor = null
-    }
-    document.getElementById(moveID).style.backgroundColor = ("#AAAACC")
-    moveInFocus = parseInt(moveID.replace("move", ""))
+    changeDisplayHighlight(moveInFocus, newMoveInFocus)
+    moveInFocus = newMoveInFocus
 
     if(moveInFocus === chessboardHistory.length - 1){
         allowMoves = true
     }else{
         allowMoves = false
     }
-    renderPieces(moveInFocus)
+    renderPieces(chessboardHistory[moveInFocus])
 } 
-
-const clearPreviousMovesDisplay = () =>{
-    removeAllChildren(document.getElementById("white-moves-1"))
-    removeAllChildren(document.getElementById("white-moves-2"))
-    removeAllChildren(document.getElementById("black-moves-1"))
-    removeAllChildren(document.getElementById("black-moves-2"))
-    removeAllChildren(document.getElementById("side-bar"))
-}
-
-const createMoveItem = (innerHTML, id) => {
-    let element = document.createElement("div")
-    element.className = "move-item"
-    element.innerHTML = innerHTML
-    element.id = id
-    element.addEventListener("click", e => {
-        if(!allowFocusChange){
-            return
-        }
-        changeDisplayFocus(e.target.id)
-    })
-    return element;
-}
-
-const createSidebarItem = innerHTML => {
-    let element = document.createElement("div")
-    element.className = "sidebar-item"
-    element.innerHTML = innerHTML
-    return element;
-}
-
-const initializeResignButton = () => {
-    let resignButton = document.getElementById('resign-button')
-    resignButton.addEventListener('click', () => {
-        gameOver(colors.white, methods.resignation)
-    });
-}
-// takes a list of moves as parameter, and displays them in the move display
-const updatePreviousMovesDisplay = moves => {
-
-    clearPreviousMovesDisplay()
-    let whiteMoves1 = document.getElementById("white-moves-1")
-    let whiteMoves2 = document.getElementById("white-moves-2")
-    let blackMoves1 = document.getElementById("black-moves-1")
-    let blackMoves2 = document.getElementById("black-moves-2")
-    let sideBar = document.getElementById("side-bar")
-
-    if(moves.length >= 1){  
-        sideBar.appendChild(createSidebarItem("1"))
-        let element = createMoveItem("", "move0")
-        whiteMoves1.appendChild(element)
-    }else{
-        return
-    }
-    let id = null
-    for(let i = 0; i < moves.length; i++){
-        id = ("move" + (i+1)) 
-        if(i % 4 === 0){
-            whiteMoves2.appendChild(createMoveItem(moves[i], id))
-        }else if(i % 4 === 1){
-            blackMoves1.appendChild(createMoveItem(moves[i], id))
-        }else if(i % 4 === 2){
-            blackMoves2.appendChild(createMoveItem(moves[i], id))
-        }else{
-            sideBar.appendChild(createSidebarItem(Math.floor(i / 4) + 2))
-            whiteMoves1.appendChild(createMoveItem(moves[i], id))
-        }
-    }
-
-    changeDisplayFocus(id)
-
-    let container = document.getElementsByClassName("move-display-content-row")[0]
-    container.scrollTop = container.scrollHeight - container.offsetHeight
-}
-
-
-// Renders the pieces the the chessboard datastructure to the html document
-const renderPieces = index => {
-    for(row_number = 0; row_number < 8; row_number++){
-        for(col_number = 0; col_number < 8; col_number++){
-
-            let id = row_number + '' + col_number
-            let square = document.getElementById(id)
-            while(square.firstChild){
-                square.removeChild(square.firstChild)
-            }
-            let piece = makePiece((chessboardHistory[index])[row_number][col_number])
-            square.appendChild(piece)
-        }
-    }
-}
-
-// Takes object of the class piece and returns html element 
-const makePiece = piece => {
-
-    let htmlPiece = document.createElement('div')
-
-    if(piece.color === colors.none){
-        return htmlPiece
-    }
-
-    htmlPiece.className = 'chess-piece'
-
-    if(piece.color === colors.white){
-        switch(piece.type){
-            case types.none:
-                break
-            case types.pawn:
-                htmlPiece.className += ' white_pawn'
-                break
-            case types.knight:
-                htmlPiece.className += ' white_knight'
-                break
-            case types.bishop:
-                htmlPiece.className += ' white_bishop'
-                break
-            case types.rook:
-                htmlPiece.className += ' white_rook'
-                break
-            case types.queen:
-                htmlPiece.className += ' white_queen'
-                break
-            case types.king:
-                htmlPiece.className += ' white_king'
-                break
-        }
-    }else{
-        switch(piece.type){
-            case types.none:
-                break
-            case types.pawn:
-                htmlPiece.className += ' black_pawn'
-                break
-            case types.knight:
-                htmlPiece.className += ' black_knight'
-                break
-            case types.bishop:
-                htmlPiece.className += ' black_bishop'
-                break
-            case types.rook:
-                htmlPiece.className += ' black_rook'
-                break
-            case types.queen:
-                htmlPiece.className += ' black_queen'
-                break
-            case types.king:
-                htmlPiece.className += ' black_king'
-                break
-        }
-    }
-    return htmlPiece
-}
-
-
-// Makes a chessboard table, and attaches it to the container chess-board
-const renderChessboard = () => {
-
-    let chess_board = document.getElementById('chess-board')
-    while(chess_board.firstChild){
-        chess_board.removeChild(chess_board.firstChild)
-    }
-    let color_counter = 0
-
-    for(row_number = 0; row_number < 8; row_number++){
-        for(col_number = 0; col_number < 8; col_number++){
-
-            let square = document.createElement('div')
-            square.className = 'chess-square'
-            square.id = row_number + '' + col_number
-
-            if(color_counter % 2 != 0){
-                square.className += ' dark-square'
-            }else{
-                square.className += ' light-square'
-            }
-            
-            square.addEventListener('click', () => {
-                if(!allowFocusChange || !allowMoves){
-                    return
-                }
-                selectSquare(square.id)
-            });
-
-            chess_board.appendChild(square)
-            color_counter += 1
-        }
-        color_counter -= 1
-    }
-
-}
 
 // This function is called when a square is clicked
 const selectSquare = async id => {
+
+    if(!allowFocusChange || !allowMoves){
+        return
+    }
+    
     let legalColor = null
 
     if(turn % 4 === 0 || turn % 4 === 1){
@@ -266,6 +75,7 @@ const selectSquare = async id => {
 
     // No current piece selected
     if(currentPiece == null) {
+
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
 
@@ -284,6 +94,8 @@ const selectSquare = async id => {
         
     }
     else {
+
+
         lastCurrentPiece = currentPiece 
         lastCurrentSquare = currentSquare
 
@@ -317,7 +129,7 @@ const selectSquare = async id => {
         }
 
         // Move or capture has been made
-        renderPieces(moveInFocus)
+        renderPieces(chessboardHistory[moveInFocus])
         turn += 1
 
         if(MODE === modes.twoplayer) {
@@ -369,7 +181,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     if(chessboardHistory[moveInFocus][squareToRow][squareToColumn].type === types.king) {
         let winner = chessboardHistory[moveInFocus][squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
         chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
-        renderPieces(moveInFocus)
+        renderPieces(chessboardHistory[moveInFocus])
         gameOver(winner, methods.mate)
         return
     }
@@ -497,59 +309,11 @@ const gameOver = (color, method) => {
 
 }
 
-const getPromotionType = color => { return new Promise((resolve, reject) => {
-    let container = document.getElementById("chess-board")
-    let IDs = ["promotion-queen", "promotion-rook", "promotion-biship", "promotion-knight"]
-    let popup = document.createElement("div")
-    popup.className = "promotion"
-    popup.id = "promotion"
-    
-    let squares = []
-    for(let i = 0; i < 4; i++){
-        squares.push(document.createElement("div"))
-        if(i === 0 || i === 3){
-            squares[i].className = "promotion-square-dark"
-        }else{
-            squares[i].className = "promotion-square-light"
-        }
-        popup.appendChild(squares[i])
-    }
-
-    let colorText = null
-    if(color === colors.white){
-        colorText = "white"
-    }else{
-        colorText = "black"
-    }
-
-    container.appendChild(popup)
-
-    let returnValues = ["Q", "R", "B", "N"]
-
-    for(let i = 0; i < 4; i++){
-        let piece = document.createElement("div")
-        piece.className = "chess-piece"
-        switch(i){
-            case 0: piece.className += " " + colorText +"_queen"; piece.id = IDs[i]; break;
-            case 1: piece.className += " " + colorText +"_rook";  piece.id = IDs[i]; break;
-            case 2: piece.className += " " + colorText +"_bishop"; piece.id = IDs[i]; break;
-            case 3: piece.className += " " + colorText +"_knight";  piece.id = IDs[i]; break;
-        }
-        piece.setAttribute("data-eventstatus", "letthrough")
-        squares[i].appendChild(piece)
-        piece.addEventListener("click", e => {
-            return resolve(returnValues[i])
-        }, true)
-    }
-
-})}
-
-
 const promotion = color => {return new Promise(async (resolve, reject) => {
     allowFocusChange = false
     var promotion = await getPromotionType(color)
     allowFocusChange = true
-    document.getElementById("chess-board").removeChild(document.getElementById("promotion"))
+    removePromotionWindow()
     let promotionPiece = null
     if(promotion == "Q") {
         promotionPiece = new Piece(types.queen, color)
@@ -572,41 +336,8 @@ const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, p
     let moveString = getMoveString(piece, squareFrom, squareTo, capture, conditional, promotionPiece, shortCastles, longCastles)
     moves.push(moveString)
     updatePreviousMovesDisplay(moves)
+    changeDisplayFocus(moves.length)
 }
-
-const getLetterFromId = id => {
-    let squareColumn = parseInt(id.substring(1, 2))
-    let letter = null
-    switch(squareColumn) {
-        case 0:
-            letter = 'a' 
-            break
-        case 1:
-            letter = 'b' 
-            break
-        case 2:
-            letter = 'c' 
-            break
-        case 3:
-            letter = 'd' 
-            break
-        case 4:
-            letter = 'e' 
-            break
-        case 5:
-            letter = 'f' 
-            break
-        case 6:
-            letter = 'g' 
-            break
-        case 7:
-            letter = 'h' 
-            break
-    }
-
-    return letter
-}
-
 
 const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
     // Store current moves 
@@ -671,58 +402,17 @@ const getPieces = (color, type, square) => {
     return pieces
 }
 
-// This function highlights all legal moves
-const highlightMoves = moves => {
-    for (let item of moves) {
-        let square = document.getElementById(item)
-        let htmlMove = document.createElement('div')
-        htmlMove.className = 'move'
-        htmlMove.id = 'move' + square.id
-        square.appendChild(htmlMove)
-    }
-}
 
-// This function highlights all legal captures
-const highlightCaptures = captures => {
-    for (let item of captures) {
-        let square = document.getElementById(item)
-        let htmlCapture = document.createElement('div')
-        htmlCapture.className = 'capture'
-        htmlCapture.id = 'capture' + square.id
-        square.appendChild(htmlCapture)
-    }
-}
 
 // Removes moves and captures from board
 const clearMovesAndCaptures = () => {
-    for(let item of possibleMoves.captures){
-        let square = document.getElementById(item)
-        let child = document.getElementById('capture' + square.id)
-        // try catch in case a highlight has been added to a square, and then a piece spawned / moved to that square,
-        // then this function throws an error, same goes for the case below
-        try {
-            square.removeChild(child)  
-        } catch (error) {
-            
-        }
-    } 
-
-    for (let item of possibleMoves.moves) {
-        let square = document.getElementById(item)
-        let child2 = document.getElementById('move' + square.id)
-        try {
-            square.removeChild(child2)    
-        } catch (error) {
-            
-        }
-    }
+    removeAllMovesAndCaptures()
     currentPiece = null
     currentSquare = null
     lastCurrentPiece = null
     lastCurrentSquare = null
     possibleMoves = new PossibleMoves()
 }
-
 
 // Returns an object of class Piece on a given id (square)
 const getPieceById = id => {
@@ -731,85 +421,40 @@ const getPieceById = id => {
     return chessboardHistory[moveInFocus][row][column]
 }
 
-
-const reverseChessBoard = () => {
-    reverseChildrenOrder(document.getElementById("chess-board"))
-}
-
-// Reverses order of the children of htmlItem. To be used to reverse chessboard
-const reverseChildrenOrder = htmlItem => {
-
-    let firstChild = htmlItem.firstChild
-    while(htmlItem.lastChild != firstChild){
-        let lastItem = htmlItem.lastChild
-        htmlItem.removeChild(lastItem)
-        htmlItem.insertBefore(lastItem, firstChild)
-    }
-}
-
 const changeToMove = moveNumber => {
-    
-    if(moveNumber < 0){
+    if(allowFocusChange === false || chessboardHistory.length === 1){
         return
-    }else if(moveNumber >= chessboardHistory.length){
-        return
-    }else if(chessboardHistory.length === 1){
-        return
-    }else{
-        changeDisplayFocus("move"+moveNumber)
     }
-
+    changeDisplayFocus(moveNumber)
 }
 
-const initializeMovesAndBoardButtons = () => {
+const changeToFirstMove = () => {
+    changeToMove(0)
+}
 
-    document.addEventListener('keydown', e => {
-        if(allowFocusChange === false){
-            return
-        }
-        if(e.key === 'ArrowLeft'){
-            changeToMove(moveInFocus -1)
-        }else if(e.key === 'ArrowRight'){
-            changeToMove(moveInFocus + 1)
-        }
-    })
+const changeToLastMove = () => {
+    changeToMove(chessboardHistory.length - 1)
+}
 
-    document.getElementById("left-total").addEventListener("click", () => {
-        if(allowFocusChange === false){
-            return
-        }
-        changeToMove(0)
-    })
-    document.getElementById("left-single").addEventListener("click", () => {
-        if(allowFocusChange === false){
-            return
-        }
-        changeToMove(moveInFocus - 1)
-    })
-    document.getElementById("right-single").addEventListener("click", () => {
-        if(allowFocusChange === false){
-            return
-        }
-        changeToMove(moveInFocus + 1)
-    })
-    document.getElementById("right-total").addEventListener("click", () => {
-        if(allowFocusChange === false){
-            return
-        }
-        changeToMove(chessboardHistory.length - 1)
-    })
+const changeToNextMove = () => {
+    if(moveInFocus === chessboardHistory.length - 1){
+        return
+    }
+    changeToMove(moveInFocus + 1)
+}
 
-    document.getElementById("reverse-board").addEventListener("click", () => {
-        reverseChessBoard()
-    })
-
+const changeToPreviousMove = () => {
+    if(moveInFocus === 0){
+        return
+    }
+    changeToMove(moveInFocus - 1)
 }
 
 // Is called when the HTML content is done loading
 window.addEventListener('DOMContentLoaded', async () => {
     initializeGlobalVariables()
     renderChessboard()
-    renderPieces(moveInFocus)
+    renderPieces(chessboardHistory[moveInFocus])
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
     renderLeftBar()
@@ -820,14 +465,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 });
 
-const renderLeftBar = () => {
-    initializeResignButton()
-    renderResetGameButton()
-    
 
+
+
+// Needs to take into account a flipped board and different perspectives
+// Also not refactored for static file
+const updateTime = () => {
+    let color = (turn % 4 === 0 || turn % 4 === 1) ? colors.white : colors.black
+    timer.countDown(color)
+
+    let whiteTime = timer.getTimeWhite() 
+    let blackTime = timer.getTimeBlack()
+    let timeBottom = document.getElementById("time-bottom") 
     
-         
-} 
+    timeBottom.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
+    
+    let timeTop = document.getElementById("time-top") 
+    timeTop.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
+
+}
 
 const initializeGlobalVariables = () => {
     MODE = getMode()
@@ -840,13 +496,7 @@ const initializeGlobalVariables = () => {
     }
 
 }
-const renderResetGameButton = () => {
-    let resetButton = document.getElementById('reset-button')
-    resetButton.addEventListener('click', () => {
-        console.log("reset button pressed")
-        resetGame()
-    });
-}
+
 
 const resetGame = () => {
     // this is the easy fix
