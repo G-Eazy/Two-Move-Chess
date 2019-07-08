@@ -79,8 +79,8 @@ class Timer {
         }
         this.startTimer = () => {
             this.prevTime = Date.now()
-            this.interval = setInterval(updateTime(), 100)
             this.timerStarted = true
+            this.interval = setInterval(updateTime, 100)
         }
         this.stop = () => {
             clearInterval(this.interval)
