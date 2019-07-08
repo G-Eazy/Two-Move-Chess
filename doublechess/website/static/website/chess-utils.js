@@ -72,10 +72,10 @@ class Timer {
             return Math.round(this.duration - this.timeBlack)
         }
         this.setDuration = duration => {
-            this.duration = duration*60
+            this.duration = duration*60*1000
         }
         this.setIncrement = increment => {
-            this.increment = increment 
+            this.increment = increment*1000 
         }
         this.startTimer = () => {
             this.prevTime = Date.now()
@@ -92,7 +92,8 @@ class Timer {
                 return
             }
             let currentUnixTime = Date.now()
-            let timeElapsed= Math.round((currentUnixTime - this.prevTime) / 100)/10
+            let timeElapsed = currentUnixTime - this.prevTime
+
             if(color === colors.white) {
                 this.timeWhite += timeElapsed
                 if(this.timeWhite >= this.duration){

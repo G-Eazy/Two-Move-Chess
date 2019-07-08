@@ -474,14 +474,11 @@ const updateTime = () => {
 
     let whiteTime = timer.getTimeWhite() 
     let blackTime = timer.getTimeBlack()
-    let timeBottom = document.getElementById("time-bottom") 
-    
-    timeBottom.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
-    
-    let timeTop = document.getElementById("time-top") 
-    timeTop.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
 
+    updateTimeDisplay(whiteTime, blackTime)
 }
+
+
 
 const initializeGlobalVariables = () => {
     MODE = getMode()
