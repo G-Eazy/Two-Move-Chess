@@ -334,3 +334,16 @@ const removeAllMovesAndCaptures = () => {
         }
     }
 }
+
+// Needs to take into account a flipped board and different perspectives
+const updateTimeDisplay = (whiteTime, blackTime) => {
+    whiteTime = Math.round(whiteTime / 1000)
+    blackTime = Math.round(blackTime / 1000)
+
+    let HTMLTimeWhite = document.getElementById("time-bottom") 
+    HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
+    
+    let HTMLTimeBlack = document.getElementById("time-top") 
+    HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
+
+}
