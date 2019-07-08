@@ -457,12 +457,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderPieces(chessboardHistory[moveInFocus])
     updatePreviousMovesDisplay(moves)
     initializeMovesAndBoardButtons()
-    renderLeftBar()
-    // test functions
-        
-
-
-
+    
+    if(MODE === modes.twoplayer) {
+        renderLeftBar()
+    }
 });
 
 
