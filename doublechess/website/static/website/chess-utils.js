@@ -16,12 +16,18 @@ const colors = {
     'none':-1
 }
 
+const sides = {
+    'king':0,
+    'queen':1
+}
+
 
 // Piece class, containing fields type and color.
 class Piece {
-    constructor(type, color = colors.none){
+    constructor(type, color = colors.none, side = sides.none){
         this.type = type
         this.color = color
+        this.side = side
     }
 }
 
@@ -129,8 +135,8 @@ class Timer {
 // constants 
 
 const initialChessboard = [
-    [new Piece(4,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
-        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1)],
+    [new Piece(4,1,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
+        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1,0)],
     [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
         new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
@@ -139,8 +145,8 @@ const initialChessboard = [
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
         new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
-    [new Piece(4,0),new Piece(2,0), new Piece(3,0), new Piece(5,0),
-        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0)]
+    [new Piece(4,0,1),new Piece(2,0), new Piece(3,0), new Piece(5,0),
+        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0,0)]
 ]
 
 
@@ -752,25 +758,37 @@ const kingMoves = (chessboard, row, column, otherColor, cs) => {
 
     // White king short castling
     if(otherColor === colors.black && !cs.whiteKingMoved && !cs.whiteHRookMoved 
-        && chessboard[7][5].type === types.none && chessboard[7][6].type === types.none) {
+        && chessboard[7][5].type === types.none && chessboard[7][6].type === types.none
+        && chessboard[7][7].color === colors.white
+        && chessboard[7][7].type === types.rook
+        && chessboard[7][7].side === sides.king) {
         possibleMoves.addMove(7 + "" + 6)
     }
     // White king long castling
     if(otherColor === colors.black && !cs.whiteKingMoved && !cs.whiteARookMoved 
         && chessboard[7][1].type === types.none && chessboard[7][2].type === types.none
-        && chessboard[7][3].type === types.none) {
+        && chessboard[7][3].type === types.none
+        && chessboard[7][0].color === colors.white
+        && chessboard[7][0].type === types.rook
+        && chessboard[7][0].side === sides.queen) {
         possibleMoves.addMove(7 + "" + 2)
     }
     
     // Black king short castling
     if(otherColor === colors.white && !cs.blackKingMoved && !cs.blackHRookMoved 
-        && chessboard[0][5].type === types.none && chessboard[0][6].type === types.none) {
+        && chessboard[0][5].type === types.none && chessboard[0][6].type === types.none
+        && chessboard[0][7].color === colors.black
+        && chessboard[0][7].type === types.rook
+        && chessboard[0][7].side === sides.king) {
         possibleMoves.addMove(0 + "" + 6)
     }
     // Black king long castling
     if(otherColor === colors.white && !cs.blackKingMoved && !cs.blackARookMoved 
         && chessboard[0][1].type === types.none && chessboard[0][2].type === types.none
-        && chessboard[0][3].type === types.none) {
+        && chessboard[0][3].type === types.none
+        && chessboard[0][0].color === colors.black
+        && chessboard[0][0].type === types.rook
+        && chessboard[0][0].side === sides.queen) {
         possibleMoves.addMove(0 + "" + 2)
     }
     

@@ -214,7 +214,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
             }
             else if(! castlingState.whiteKingMoved && squareToColumn === 2) {
                 chessboardHistory[moveInFocus][7][2] = piece
-                chessboardHistory[moveInFocus][7][3] = chessboardHistory[moveInFocus][7][7]
+                chessboardHistory[moveInFocus][7][3] = chessboardHistory[moveInFocus][7][0]
                 chessboardHistory[moveInFocus][7][0] = new Piece(0)
                 castlingState.whiteARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
@@ -236,7 +236,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
             }
             else if(! castlingState.blackKingMoved && squareToColumn === 2) {
                 chessboardHistory[moveInFocus][0][2] = piece
-                chessboardHistory[moveInFocus][0][3] = chessboardHistory[moveInFocus][0][7]
+                chessboardHistory[moveInFocus][0][3] = chessboardHistory[moveInFocus][0][0]
                 chessboardHistory[moveInFocus][0][0] = new Piece(0)
                 castlingState.blackARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
