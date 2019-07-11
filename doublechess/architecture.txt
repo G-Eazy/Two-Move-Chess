@@ -14,5 +14,6 @@ file structure:
             homepage.html
             tutorial.html
             twoplayer.html
+            security.txt
 
 

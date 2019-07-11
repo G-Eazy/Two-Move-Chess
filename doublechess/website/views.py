@@ -20,3 +20,6 @@ def analysis(request):
 
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")
+
+def security(request):
+    return render(request, 'website/security.txt')
