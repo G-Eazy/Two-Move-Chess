@@ -249,18 +249,18 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     } 
     else if(piece.type === types.rook) {
         if(piece.color === colors.white) {
-            if(squareFromColumn === 0) {
+            if(squareFromColumn === 0 && squareFromRow === 7) {
                 castlingState.whiteARookMoved = true
             }
-            else if(squareFromColumn === 7) {
+            else if(squareFromColumn === 7 && squareFromRow === 7) {
                 castlingState.whiteHRookMoved = true
             }
         }
         else {
-            if(squareFromColumn === 0) {
+            if(squareFromColumn === 0 && squareFromRow === 0) {
                 castlingState.blackARookMoved = true
             }
-            else if(squareFromColumn === 7) {
+            else if(squareFromColumn === 7 && squareFromRow === 0) {
                 castlingState.blackHRookMoved = true
             }
         

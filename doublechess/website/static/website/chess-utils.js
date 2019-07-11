@@ -192,7 +192,7 @@ const copyChessboard = chessboard => {
     for(let row = 0; row < 8; row++){
         let newRow = []
         for(let col = 0; col < 8; col++){
-            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color))
+            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color, chessboard[row][col].side))
         }
         newChessboard.push(newRow)
     }
