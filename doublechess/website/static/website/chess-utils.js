@@ -57,7 +57,7 @@ class PossibleMoves {
     }
 }
 
-
+// make static
 class Timer {
     constructor() {
         this.timeWhite = 0
