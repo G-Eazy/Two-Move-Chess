@@ -1,0 +1,20 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+<link href='{% static "website/userstyles.css"%}' rel='stylesheet'>
+{% endblock %}
+
+{% block content %}
+
+<div class='user-container'>
+    <form method='POST' class='user-create-container'>
+        {% csrf_token %}
+        <h2>Create user</h2>
+        <br>
+        {{ form  }}
+        <br>
+        <button class='submit-button'>Submit</button>
+</div>
+
+{% endblock %}

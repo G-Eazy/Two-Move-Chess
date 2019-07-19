@@ -350,3 +350,7 @@ const updateTimeDisplay = (whiteTime, blackTime) => {
     HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
 
 }
+
+const reverseTimeDisplay = () => {
+    
+}
