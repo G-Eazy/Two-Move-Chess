@@ -335,22 +335,34 @@ const removeAllMovesAndCaptures = () => {
     }
 }
 
-const reverseTimeDisplay = () => {
-    
-}
 // Needs to take into account a flipped board and different perspectives
 const updateTimeDisplay = (whiteTime, blackTime) => {
     whiteTime = Math.round(whiteTime / 1000)
     blackTime = Math.round(blackTime / 1000)
 
-    let HTMLTimeWhite = document.getElementById("time-bottom") 
+    let HTMLTimeWhite = document.getElementById("time-white") 
     HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
     
-    let HTMLTimeBlack = document.getElementById("time-top") 
+    let HTMLTimeBlack = document.getElementById("time-black") 
     HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
 
 }
 
 const reverseTimeDisplay = () => {
-    
+
+    let topTimeContainer = document.getElementById("top-time-container")
+    let topUsernameContainer = document.getElementById("top-username-container")
+    let bottomUsernameContainer = document.getElementById("bottom-username-container")
+    let bottomTimeContainer = document.getElementById("bottom-time-container")
+
+    let topTime = topTimeContainer.removeChild(topTimeContainer.firstElementChild)
+    let topUsername = topUsernameContainer.removeChild(topUsernameContainer.firstElementChild)
+    let bottomUsername = bottomUsernameContainer.removeChild(bottomUsernameContainer.firstElementChild)
+    let bottomTime = bottomTimeContainer.removeChild(bottomTimeContainer.firstElementChild)
+
+    topTimeContainer.appendChild(bottomTime)
+    bottomTimeContainer.appendChild(topTime)
+    topUsernameContainer.appendChild(bottomUsername)
+    bottomUsernameContainer.appendChild(topUsername)
+
 }
