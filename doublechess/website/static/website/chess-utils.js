@@ -361,12 +361,13 @@ const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboard, c
 
     let string = ""
     let squares = getSameTypeSquares(piece.color, piece.type, squareFrom, chessboard)
+
     if(squares.length === 0) {getSameTypeSquares
         return null
     }
     else {
         for(let square of squares) {
-            let pieceMoves = getAvailableMoves(chessboard, piece, square.row, square.col, castlingState)
+            let pieceMoves = getAvailableMoves(chessboard, chessboard[square.row][square.col], square.row, square.col, castlingState)
             if(pieceMoves.moves.includes(squareTo.id) 
             || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
@@ -398,7 +399,6 @@ const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboard, c
 */
 const getAvailableMoves = (chessboard, piece, row, column, cs) => {
     let color = piece.color
-
     if(color === colors.white){
         switch(piece.type) {
             case types.pawn:
@@ -591,7 +591,7 @@ const knightMoves = (chessboard, row, column, otherColor) => {
 }
 
 const bishopMoves = (chessboard, row, column, otherColor) => {
-    //let possibleMoves = new PossibleMoves()
+    let possibleMoves = new PossibleMoves()
     // first diagonal movement and capture
 
     // default values
@@ -655,9 +655,9 @@ const bishopMoves = (chessboard, row, column, otherColor) => {
         }
         if(i <= 7 && j >= 0 && chessboard[i][j].color === otherColor) {
             possibleMoves.addCapture(i + "" + j)
-        }
+       }
     }
-    
+    return possibleMoves
 }
 
 
