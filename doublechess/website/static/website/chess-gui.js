@@ -341,11 +341,17 @@ const updateTimeDisplay = (whiteTime, blackTime) => {
     blackTime = Math.round(blackTime / 1000)
 
     let HTMLTimeWhite = document.getElementById("time-white") 
-    HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
-    
+    if((whiteTime % 60) < 10){
+        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":0" + (whiteTime % 60)
+    }else{
+        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
+    }
     let HTMLTimeBlack = document.getElementById("time-black") 
-    HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
-
+    if((blackTime % 60) < 10){
+        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":0" + (whiteTime % 60)
+    }else{
+        HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
+    }
 }
 
 const reverseTimeDisplay = () => {

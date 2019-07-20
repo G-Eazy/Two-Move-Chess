@@ -37,6 +37,10 @@ class Square {
         this.col = col
 
         this.id = row + "" + col
+
+        this.equals = square => {
+            return this.row === square.row && this.col === square.col
+        }
     }
 }
 
@@ -147,13 +151,15 @@ const initialChessboard = [
         new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0,0)]
 ]
 
+/*
+    Takes a col value between 0 and 7 and returns the corresponding letter.
 
-// functions
+    col: number
+*/
 
-const getLetterFromId = id => {
-    let squareColumn = parseInt(id.substring(1, 2))
+const getLetterFromCol = col => {
     let letter = null
-    switch(squareColumn) {
+    switch(col) {
         case 0:
             letter = 'a' 
             break
@@ -183,6 +189,12 @@ const getLetterFromId = id => {
     return letter
 }
 
+
+/*
+    Takes a chessboard and returns a copy
+
+    chessboard: 2D array of pieces (objects)
+*/
 const copyChessboard = chessboard => {
 
     let newChessboard = []
@@ -197,7 +209,10 @@ const copyChessboard = chessboard => {
     return newChessboard
 }
 
-// untested
+/*
+    Generates and returns a new chessboardhistory
+
+*/
 const getNewChessboardHistory = () => {
     return [copyChessboard(initialChessboard)]
 }
@@ -217,7 +232,7 @@ const getMoveString = (piece, squareFrom, squareTo, capture, conditional=null, p
     }
 
     if(piece.type === types.pawn && capture) {
-        moveString += getLetterFromId(squareFrom.id)
+        moveString += getLetterFromCol(squareFrom.col)
     }
     else if (piece.type != types.pawn){
         moveString += typeIdToTypeName(piece.type)
@@ -231,7 +246,7 @@ const getMoveString = (piece, squareFrom, squareTo, capture, conditional=null, p
         moveString += "x"
     }
 
-    moveString += getLetterFromId(squareTo.id) + (8 - parseInt(squareTo.id.substring(0, 1)))
+    moveString += getLetterFromCol(squareTo.col) + (8 - squareTo.row)
     
     if(promotionPiece != null) {
         moveString += "=" + typeIdToTypeName(promotionPiece.type)
@@ -269,30 +284,100 @@ const typeIdToTypeName = type => {
     return retType
 }
 
-// to be refactored completely
-// make squares to indexes and not HTML elements
-const anotherPieceCanJump2 = (chessboard, piece, squareFrom, squareTo) => {
-    // Store current moves 
-    let string = ""
+/*
+    Checks if the squares have the same row
+    square1: object, class: Square
+    square2: object, class: Square
+*/
+const sameRow = (square1, square2) => {
+    return square1.row === square2.row
+}
 
-    let pieces = getPieces(chessboard, piece.color, piece.type, squareFrom)
-    if(pieces.length === 0) {
+/*
+    Checks if the squares have the same column
+    square1: object, class: Square
+    square2: object, class: Square
+*/
+const sameColumn = (square1, square2) => {
+    return square1.col === square2.col
+}
+
+/*
+    checkes whether the square is contained in the possible moves
+
+    square: object, class:Square
+    possibleMoves: object, class:PossibleMoves
+*/
+const isPossibleMove = (square, possibleMoves) => {
+    for(let elem of possibleMoves.moves) {
+        if(square.id === elem) {
+            return true
+        } 
+    }
+    for(let elem of possibleMoves.captures) {
+        if(square.id === elem) {
+            return true
+        } 
+    }
+    return false
+}
+
+
+/*
+    Returns a list of squares. These squares belong to the pieces that 
+    are of the color and type as specified by the parameters, and are not on the same 
+    square as the parameter
+
+    color: number, enum colors
+    type: number, enum types
+    square: object, class: Square
+    chessboard: 2d array of pieces (objects)
+*/
+
+const getSameTypeSquares = (color, type, square, chessboard) => {
+    let squares = []
+    for(let row = 0; row < 8; row++){
+        for(col = 0; col < 8; col++){
+            let squareOther = new Square(row, col)
+            let piece = chessboard[row][col]
+            if(piece.color === color && piece.type === type && !square.equals(squareOther)){
+                squares.push(squareOther)
+            }
+        }
+    }
+    return squares
+}
+
+/*  
+    If another piece is found that move to squareTo, which is the same kind of piece
+    as piece, then a conditional string is returned. For instance Neg4, 
+
+    piece: object, class:Piece
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+    chessboard: 2D array with Pieces (objects)
+*/
+const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboard, castlingState) => {
+
+    let string = ""
+    let squares = getSameTypeSquares(piece.color, piece.type, squareFrom, chessboard)
+    if(squares.length === 0) {getSameTypeSquares
         return null
     }
     else {
-        for(let sq of pieces) {
-            let pieceMoves = getAvailableMoves(chessboard, getPieceById(sq), sq)
+        for(let square of squares) {
+            let pieceMoves = getAvailableMoves(chessboard, piece, square.row, square.col, castlingState)
             if(pieceMoves.moves.includes(squareTo.id) 
             || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
-                if(sameRow(sq, squareFrom.id)) {
-                    string += getLetterFromId(squareFrom.id)
+                if(sameRow(square, squareFrom)) {
+                    string += getLetterFromCol(squareFrom.col)
                 }
-                else if(sameColumn(sq, squareFrom.id)) {
-                    string += (8 - parseInt(squareFrom.id.substring(0, 1)))
+                else if(sameColumn(square, squareFrom)) {
+                    string += (8 - squareFrom.row)
                 }
                 else {
-                    string += getLetterFromId(squareFrom.id)
+                    string += getLetterFromCol(squareFrom.col)
                 }
                 return string
             }
@@ -301,25 +386,16 @@ const anotherPieceCanJump2 = (chessboard, piece, squareFrom, squareTo) => {
     return null
 }
 
-// TODO: change square from HTML to static
-const getPieces2 = (chessboard, color, type, square) => {
-    let pieces = []
-    let rowIndex = 0
-    let columnIndex = 0
-    for(let row of chessboard) {
-        for(let piece of row) {
-            let squareID = (rowIndex + "" + columnIndex)
-            if(piece.color === color && piece.type === type && square.id != squareID) {
-                pieces.push(squareID)
-            }
-            columnIndex += 1
-        }
-        rowIndex += 1
-        columnIndex = 0
-    }
-    return pieces
-}
+/*
+    Returns object of class PossibleMoves, aka two lists, one of available
+    captures and one of available moves.
 
+    chessboard: 2D array of pieces (objects)
+    piece: object, class:Piece
+    row: number
+    col: number
+    cs: castlingState object
+*/
 const getAvailableMoves = (chessboard, piece, row, column, cs) => {
     let color = piece.color
 

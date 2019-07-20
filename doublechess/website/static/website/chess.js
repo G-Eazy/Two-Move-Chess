@@ -102,8 +102,9 @@ const selectSquare = async id => {
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
         
-        if(!legalMove()) {
-            clearMovesAndCaptures() 
+        if(!isPossibleMove(currentSquare, possibleMoves)) {
+            clearMovesAndCaptures()
+            selectSquare(id)
             return
         }
 
@@ -149,20 +150,14 @@ const selectSquare = async id => {
     }
 }
 
-const legalMove = () => {
-    for(let elem of possibleMoves.moves) {
-        if(currentSquare.id === elem) {
-            return true
-        } 
-    }
-    for(let elem of possibleMoves.captures) {
-        if(currentSquare.id === elem) {
-            return true
-        } 
-    }
-    return false
-}
 
+/*
+    This method does alot....
+
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+    capture: boolean
+*/
 const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (resolve, reject) =>{
 
     let squareFromRow = parseInt(squareFrom.id.substring(0, 1))
@@ -173,7 +168,7 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     let piece = getPieceById(squareFrom.id)
     let promotionPiece = null
     
-    let conditional = anotherPieceCanJump(piece, squareFrom, squareTo)
+    let conditional = getAnotherPieceCanMoveString(piece, squareFrom, squareTo, chessboardHistory[moveInFocus], castlingState)
 
     chessboardHistory[moveInFocus][squareFromRow][squareFromColumn] = new Piece(0)
         
@@ -338,71 +333,6 @@ const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, p
     updatePreviousMovesDisplay(moves)
     changeDisplayFocus(moves.length)
 }
-
-const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
-    // Store current moves 
-    let currentMoves = possibleMoves
-    possibleMoves = new PossibleMoves() 
-    let string = ""
-
-    let pieces = getPieces(piece.color, piece.type, squareFrom)
-    if(pieces.length === 0) {
-        return null
-    }
-    else {
-        for(let sq of pieces) {
-            let row = parseInt(sq.substring(0, 1))
-            let column = parseInt(sq.substring(1, 2))
-            let pieceMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], piece, row, column, castlingState)
-            if(pieceMoves.moves.includes(squareTo.id) 
-            || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
-
-                if(sameRow(sq, squareFrom.id)) {
-                    string += getLetterFromId(squareFrom.id)
-                }
-                else if(sameColumn(sq, squareFrom.id)) {
-                    string += (8 - parseInt(squareFrom.id.substring(0, 1)))
-                }
-                else {
-                    string += getLetterFromId(squareFrom.id)
-                }
-                return string
-            }
-        possibleMoves = new PossibleMoves()
-        }
-    }
-    // Restore current moves
-    possibleMoves = currentMoves
-    return null
-}
-
-const sameRow = (square1, square2) => {
-    return (parseInt(square1.substring(0, 1)) === parseInt(square2.substring(0, 1)))
-}
-const sameColumn = (square1, square2) => {
-    return (parseInt(square1.substring(1, 2)) === parseInt(square2.substring(1, 2)))
-}
-
-
-const getPieces = (color, type, square) => {
-    let pieces = []
-    let rowIndex = 0
-    let columnIndex = 0
-    for(let row of chessboardHistory[moveInFocus]) {
-        for(let piece of row) {
-            let squareID = (rowIndex + "" + columnIndex)
-            if(piece.color === color && piece.type === type && square.id != squareID) {
-                pieces.push(squareID)
-            }
-            columnIndex += 1
-        }
-        rowIndex += 1
-        columnIndex = 0
-    }
-    return pieces
-}
-
-
 
 // Removes moves and captures from board
 const clearMovesAndCaptures = () => {
