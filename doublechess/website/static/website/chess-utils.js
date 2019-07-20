@@ -217,7 +217,17 @@ const getNewChessboardHistory = () => {
     return [copyChessboard(initialChessboard)]
 }
 
+/*
+    Gets the move string, as to be displayed.
 
+    piece: object, class:Piece
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+    conditional: string (the extra component when multiple pieces can move to the same square)
+    promotionPiece: object, class:Piece
+    shortCastles: boolean
+    longCastles: boolean
+*/
 const getMoveString = (piece, squareFrom, squareTo, capture, conditional=null, promotionPiece=null, shortCastles=false, longCastles=false) => {
 
     let moveString = ""
@@ -385,6 +395,45 @@ const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboard, c
         }
     }
     return null
+}
+
+/*
+    Checks if the move that happened was a promotion.
+
+    piece: object, class:Piece
+    squareTo: object, class:Square
+*/
+
+const isPromotion = (piece, squareTo) => {
+    if(piece.type === types.pawn && piece.color === colors.white && squareTo.row === 0){
+        return true
+    }else if(piece.type === types.pawn && piece.color === colors.black && squareTo.row === 7){
+        return true
+    }else{
+        return false
+    }
+}
+
+/*
+    Returns true if the parameters constitutes a long castle
+
+    piece: object, class:Piece
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+*/
+const isLongCastle = (piece, squareFrom, squareTo) => {
+    return piece.type === types.king && squareFrom.col === 4 && squareTo.col === 2
+}
+
+/*
+    Returns false if the parameters constitutes a short castle
+
+    piece: object, class:Piece
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+*/
+const isShortCastle = (piece, squareFrom, squareTo) => {
+    return piece.type === types.king && squareFrom.col === 4 && squareTo.col === 6
 }
 
 /*

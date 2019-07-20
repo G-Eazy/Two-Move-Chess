@@ -108,29 +108,40 @@ const selectSquare = async id => {
             return
         }
 
-        chessboardHistory.push(copyChessboard(chessboardHistory[chessboardHistory.length -1]))
 
         // Don't change position of this variable. Must happen before movePiece
         moveInFocus += 1
         
-        // Move to empty square
-        if(currentPiece.type === types.none) {
-            await movePiece(lastCurrentSquare, currentSquare, false)
-            clearMovesAndCaptures()
-        }
-        // Capture enemy piece
-        else if(lastCurrentPiece.color != currentPiece.color) {
-            await movePiece(lastCurrentSquare, currentSquare, true)
-            clearMovesAndCaptures()
-        }
-        else {
-            console.log("shouldnt happen")
-            clearMovesAndCaptures()
-            return
+        let promotionPiece = null
+        if(isPromotion(lastCurrentPiece, currentSquare)){
+            promotionPiece = await promotion(lastCurrentPiece.color)
         }
 
-        // Move or capture has been made
+        let isCapture = false
+        if(currentPiece.type !== types.none){
+            isCapture = true
+        }
+
+        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory[chessboardHistory.length-1], castlingState)
+        let shortCastle = isShortCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
+        let longCastle = isLongCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
+        let moveString = getMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, isCapture, conditional, promotionPiece, shortCastle, longCastle)
+        moves.push(moveString)
+
+        let newChessBoard = copyChessboard(chessboardHistory[chessboardHistory.length-1])
+        movePiece(newChessBoard,lastCurrentSquare, currentSquare, promotionPiece)
+        chessboardHistory.push(newChessBoard)
+
+        updatePreviousMovesDisplay(moves)
+        changeDisplayFocus(moves.length)
         renderPieces(chessboardHistory[moveInFocus])
+
+        // Means that game is over
+        if(currentPiece.type === types.king){
+            gameOver(lastCurrentPiece.color, methods.mate)
+        }
+        clearMovesAndCaptures()
+
         turn += 1
 
         if(MODE === modes.twoplayer) {
@@ -150,45 +161,25 @@ const selectSquare = async id => {
     }
 }
 
-
-/*
-    This method does alot....
+/*  
+    Moves the piece from squareFrom to squareTo on the chessboard. 
+    Changes the castling state and the chessboard.
 
     squareFrom: object, class:Square
     squareTo: object, class:Square
     capture: boolean
 */
-const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (resolve, reject) =>{
+const movePiece = (chessboard, squareFrom, squareTo, promotionPiece) =>{
     
-    let chessboard = chessboardHistory[moveInFocus]
     let piece = chessboard[squareFrom.row][squareFrom.col]
-    let promotionPiece = null
-    let conditional = getAnotherPieceCanMoveString(piece, squareFrom, squareTo, chessboardHistory[moveInFocus], castlingState)
-
     chessboard[squareFrom.row][squareFrom.col] = new Piece(0)
         
-    // game over
-    if(chessboard[squareTo.row][squareTo.col].type === types.king) {
-        let winner = chessboardHistory[moveInFocus][squareTo.row][squareTo.col].color === colors.white ? colors.black : colors.white
-        chessboard[squareTo.row][squareTo.col] = piece
-        renderPieces(chessboard)
-        gameOver(winner, methods.mate)
+
+    if(promotionPiece !== null){
+        chessboard[squareTo.row][squareTo.col] = promotionPiece
         return
     }
-
-
-    // Case of pawn promotion
-    if(piece.type === types.pawn) {
-        if((piece.color === colors.white && squareTo.row === 0) 
-            || (piece.color === colors.black && squareTo.row === 7)) {
-            promotionPiece = await promotion(piece.color)
-            chessboard[squareTo.row][squareTo.col] = promotionPiece
-            addMoveString(piece, squareFrom, squareTo, capture, null, promotionPiece) 
-            return resolve()
-        }
-    }
-
-    
+   
     // Castling state
     if(piece.type === types.king) {
         if(piece.color === colors.white) {
@@ -197,19 +188,16 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[7][5] = chessboard[7][7]
                 chessboard[7][7] = new Piece(0)
                 castlingState.whiteHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) /// why can i not skip unused variables
                 castlingState.whiteKingMoved = true
-                return resolve()
-            
+                return
             }
             else if(! castlingState.whiteKingMoved && squareTo.col === 2) {
                 chessboard[7][2] = piece
                 chessboard[7][3] = chessboard[7][0]
                 chessboard[7][0] = new Piece(0)
                 castlingState.whiteARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 castlingState.whiteKingMoved = true
-                return resolve()
+                return
             }
             castlingState.whiteKingMoved = true
         }
@@ -219,9 +207,8 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[0][5] = chessboard[0][7]
                 chessboard[0][7] = new Piece(0)
                 castlingState.blackHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) 
                 castlingState.blackKingMoved = true
-                return resolve()
+                return
             
             }
             else if(! castlingState.blackKingMoved && squareTo.col === 2) {
@@ -229,9 +216,8 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
                 chessboard[0][3] = chessboard[0][0]
                 chessboard[0][0] = new Piece(0)
                 castlingState.blackARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 castlingState.blackKingMoved = true
-                return resolve()
+                return
             }
             castlingState.blackKingMoved = true
         }
@@ -258,9 +244,8 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     }
     
     chessboard[squareTo.row][squareTo.col] = piece
-    addMoveString(piece, squareFrom, squareTo, capture, conditional) 
-    return resolve()
-})}
+    return
+}
 
 
 const gameOver = (color, method) => {
@@ -319,15 +304,6 @@ const promotion = color => {return new Promise(async (resolve, reject) => {
     }
     return resolve(promotionPiece)
 })}
-
-
-const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, promotionPiece=null, shortCastles=false, longCastles=false) => {
-    
-    let moveString = getMoveString(piece, squareFrom, squareTo, capture, conditional, promotionPiece, shortCastles, longCastles)
-    moves.push(moveString)
-    updatePreviousMovesDisplay(moves)
-    changeDisplayFocus(moves.length)
-}
 
 // Removes moves and captures from board
 const clearMovesAndCaptures = () => {
