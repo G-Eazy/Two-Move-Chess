@@ -571,95 +571,23 @@ const pawnMoves = (chessboard, row, column, otherColor) => {
 const knightMoves = (chessboard, row, column, otherColor) => {
     let possibleMoves = new PossibleMoves()
     
-    // Move and capture up right
-    try {
-        let piece = chessboard[row - 2][column + 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 2) + "" + (column + 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 2) + "" + (column + 1))
-        }
-    } catch (error) {}
+    let possibleSquares = [new Square(row-2, column+1), new Square(row-2, column-1), 
+                            new Square(row+2, column+1), new Square(row+2, column -1), 
+                            new Square(row-1, column+2), new Square(row+1, column+2),
+                            new Square(row-1, column-2), new Square(row+1, column-2)]
 
-    // Move and capture up left
-    try {
-        let piece = chessboard[row - 2][column - 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 2) + "" + (column - 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 2) + "" + (column - 1))
-        }
-    } catch (error) {}
-
-    // Move and capture down right
-    try {
-        let piece = chessboard[row + 2][column + 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 2) + "" + (column + 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 2) + "" + (column + 1))
-        }
-    } catch (error) {}
-    // Move and capture down left
-    try {
-        let piece = chessboard[row + 2][column - 1]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 2) + "" + (column - 1))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 2) + "" + (column - 1))
-        }
-    } catch (error) {}
-    
-    // Move and capture right up
-    try {
-        let piece = chessboard[row - 1][column + 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 1) + "" + (column + 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 1) + "" + (column + 2))
-        }
-    } catch (error) {}
-    // Move and capture right down
-    try {
-        let piece = chessboard[row + 1][column + 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 1) + "" + (column + 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 1) + "" + (column + 2))
-        }
-    } catch (error) {}
-
-    // Move and capture left up
-    try {
-        let piece = chessboard[row - 1][column - 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row - 1) + "" + (column - 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row - 1) + "" + (column - 2))
-        }
-    } catch (error) {}
-
-    // Move and capture left down
-    try {
-        let piece = chessboard[row + 1][column - 2]
-        if(piece.color === colors.none) {
-            possibleMoves.addMove((row + 1) + "" + (column - 2))
-        }
-        else if(piece.color === otherColor) {
-            possibleMoves.addCapture((row + 1) + "" + (column - 2))
-        }
-    } catch (error) {}
-
+    for(let square of possibleSquares){
+        try{
+            let piece = chessboard[square.row][square.col]
+            if(piece.color === colors.none) {
+                possibleMoves.addMove(square.row + "" + square.col)
+            }
+            else if(piece.color === otherColor) {
+                possibleMoves.addCapture(square.row + "" + square.col)
+            }
+        }catch(error){}
+    }
     return possibleMoves
-
-
 }
 
 const bishopMoves = (chessboard, row, column, otherColor) => {
@@ -730,8 +658,6 @@ const bishopMoves = (chessboard, row, column, otherColor) => {
         }
     }
     
-    return possibleMoves
-
 }
 
 
