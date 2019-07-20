@@ -159,24 +159,19 @@ const selectSquare = async id => {
     capture: boolean
 */
 const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (resolve, reject) =>{
-
-    let squareFromRow = parseInt(squareFrom.id.substring(0, 1))
-    let squareFromColumn = parseInt(squareFrom.id.substring(1, 2))
     
-    let squareToRow = parseInt(squareTo.id.substring(0, 1))
-    let squareToColumn = parseInt(squareTo.id.substring(1, 2))
-    let piece = getPieceById(squareFrom.id)
+    let chessboard = chessboardHistory[moveInFocus]
+    let piece = chessboard[squareFrom.row][squareFrom.col]
     let promotionPiece = null
-    
     let conditional = getAnotherPieceCanMoveString(piece, squareFrom, squareTo, chessboardHistory[moveInFocus], castlingState)
 
-    chessboardHistory[moveInFocus][squareFromRow][squareFromColumn] = new Piece(0)
+    chessboard[squareFrom.row][squareFrom.col] = new Piece(0)
         
     // game over
-    if(chessboardHistory[moveInFocus][squareToRow][squareToColumn].type === types.king) {
-        let winner = chessboardHistory[moveInFocus][squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
-        chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
-        renderPieces(chessboardHistory[moveInFocus])
+    if(chessboard[squareTo.row][squareTo.col].type === types.king) {
+        let winner = chessboardHistory[moveInFocus][squareTo.row][squareTo.col].color === colors.white ? colors.black : colors.white
+        chessboard[squareTo.row][squareTo.col] = piece
+        renderPieces(chessboard)
         gameOver(winner, methods.mate)
         return
     }
@@ -184,10 +179,10 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
 
     // Case of pawn promotion
     if(piece.type === types.pawn) {
-        if((piece.color === colors.white && squareToRow === 0) 
-            || (piece.color === colors.black && squareToRow === 7)) {
+        if((piece.color === colors.white && squareTo.row === 0) 
+            || (piece.color === colors.black && squareTo.row === 7)) {
             promotionPiece = await promotion(piece.color)
-            chessboardHistory[moveInFocus][squareToRow][squareToColumn] = promotionPiece
+            chessboard[squareTo.row][squareTo.col] = promotionPiece
             addMoveString(piece, squareFrom, squareTo, capture, null, promotionPiece) 
             return resolve()
         }
@@ -197,20 +192,20 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     // Castling state
     if(piece.type === types.king) {
         if(piece.color === colors.white) {
-            if(! castlingState.whiteKingMoved && squareToColumn === 6) {
-                chessboardHistory[moveInFocus][7][6] = piece
-                chessboardHistory[moveInFocus][7][5] = chessboardHistory[moveInFocus][7][7]
-                chessboardHistory[moveInFocus][7][7] = new Piece(0)
+            if(! castlingState.whiteKingMoved && squareTo.col === 6) {
+                chessboard[7][6] = piece
+                chessboard[7][5] = chessboard[7][7]
+                chessboard[7][7] = new Piece(0)
                 castlingState.whiteHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, true) /// why can i not skip unused variables
                 castlingState.whiteKingMoved = true
                 return resolve()
             
             }
-            else if(! castlingState.whiteKingMoved && squareToColumn === 2) {
-                chessboardHistory[moveInFocus][7][2] = piece
-                chessboardHistory[moveInFocus][7][3] = chessboardHistory[moveInFocus][7][0]
-                chessboardHistory[moveInFocus][7][0] = new Piece(0)
+            else if(! castlingState.whiteKingMoved && squareTo.col === 2) {
+                chessboard[7][2] = piece
+                chessboard[7][3] = chessboard[7][0]
+                chessboard[7][0] = new Piece(0)
                 castlingState.whiteARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 castlingState.whiteKingMoved = true
@@ -219,20 +214,20 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
             castlingState.whiteKingMoved = true
         }
         else {
-            if(! castlingState.blackKingMoved && squareToColumn === 6) {
-                chessboardHistory[moveInFocus][0][6] = piece
-                chessboardHistory[moveInFocus][0][5] = chessboardHistory[moveInFocus][0][7]
-                chessboardHistory[moveInFocus][0][7] = new Piece(0)
+            if(! castlingState.blackKingMoved && squareTo.col === 6) {
+                chessboard[0][6] = piece
+                chessboard[0][5] = chessboard[0][7]
+                chessboard[0][7] = new Piece(0)
                 castlingState.blackHRookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, true) 
                 castlingState.blackKingMoved = true
                 return resolve()
             
             }
-            else if(! castlingState.blackKingMoved && squareToColumn === 2) {
-                chessboardHistory[moveInFocus][0][2] = piece
-                chessboardHistory[moveInFocus][0][3] = chessboardHistory[moveInFocus][0][0]
-                chessboardHistory[moveInFocus][0][0] = new Piece(0)
+            else if(! castlingState.blackKingMoved && squareTo.col === 2) {
+                chessboard[0][2] = piece
+                chessboard[0][3] = chessboard[0][0]
+                chessboard[0][0] = new Piece(0)
                 castlingState.blackARookMoved = true
                 addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
                 castlingState.blackKingMoved = true
@@ -244,25 +239,25 @@ const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (
     } 
     else if(piece.type === types.rook) {
         if(piece.color === colors.white) {
-            if(squareFromColumn === 0 && squareFromRow === 7) {
+            if(squareFrom.col === 0 && squareFrom.row === 7) {
                 castlingState.whiteARookMoved = true
             }
-            else if(squareFromColumn === 7 && squareFromRow === 7) {
+            else if(squareFrom.col === 7 && squareFrom.row === 7) {
                 castlingState.whiteHRookMoved = true
             }
         }
         else {
-            if(squareFromColumn === 0 && squareFromRow === 0) {
+            if(squareFrom.col === 0 && squareFrom.row === 0) {
                 castlingState.blackARookMoved = true
             }
-            else if(squareFromColumn === 7 && squareFromRow === 0) {
+            else if(squareFrom.col === 7 && squareFrom.row === 0) {
                 castlingState.blackHRookMoved = true
             }
         
         }
     }
     
-    chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
+    chessboard[squareTo.row][squareTo.col] = piece
     addMoveString(piece, squareFrom, squareTo, capture, conditional) 
     return resolve()
 })}
@@ -342,13 +337,6 @@ const clearMovesAndCaptures = () => {
     lastCurrentPiece = null
     lastCurrentSquare = null
     possibleMoves = new PossibleMoves()
-}
-
-// Returns an object of class Piece on a given id (square)
-const getPieceById = id => {
-    let row = parseInt(id.substring(0, 1))
-    let column = parseInt(id.substring(1, 2))
-    return chessboardHistory[moveInFocus][row][column]
 }
 
 const changeToMove = moveNumber => {
