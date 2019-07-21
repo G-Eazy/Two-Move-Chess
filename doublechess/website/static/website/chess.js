@@ -247,7 +247,6 @@ const movePiece = (chessboard, squareFrom, squareTo, promotionPiece) =>{
     return
 }
 
-
 const gameOver = (color, method) => {
     let winner = color === colors.white ? "white" : "black"
 
