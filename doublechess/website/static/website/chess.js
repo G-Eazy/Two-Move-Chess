@@ -20,21 +20,24 @@ var MODE = null
 
 var timer = null
 var possibleMoves = new PossibleMoves()
-var currentPiece, lastCurrentPiece = null
-var currentSquare, lastCurrentSquare = null;
+var currentPiece = null
+var currentSquare = null
 
-// controls who gets to move pieces
+// Allows you to change which move is being displayed
 var allowFocusChange = true
+
+// Allows you to make a move
 var allowMoves = true
 
 // current move being displayed. Should be an integer
 var moveInFocus = 0
+// current turn
 var turn = 1
 
 
 const chessboardHistory = getNewChessboardHistory()
 const moves = []
-const castlingStates = [copyCastlingState(castlingState)]
+const castlingStates = getNewCastlingStates()
 
 // Should take an INTEGER
 const changeDisplayFocus = newMoveInFocus => {
@@ -73,10 +76,10 @@ const selectSquare = async id => {
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
 
-
         // Square selected is empty square 
-        if(currentPiece.type == types.none  || legalColor != currentPiece.color) {
-            clearMovesAndCaptures()
+        if(currentPiece.type === types.none  || legalColor !== currentPiece.color) {
+            removeAllMovesAndCaptures()
+            resetMoveState()
             return
         }
         // Square selected holds a piece
@@ -89,15 +92,15 @@ const selectSquare = async id => {
     }
     else {
 
-
-        lastCurrentPiece = currentPiece 
-        lastCurrentSquare = currentSquare
+        let lastCurrentPiece = currentPiece 
+        let lastCurrentSquare = currentSquare
 
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
         
         if(!isPossibleMove(currentSquare, possibleMoves)) {
-            clearMovesAndCaptures()
+            removeAllMovesAndCaptures()
+            resetMoveState()
             selectSquare(id)
             return
         }
@@ -144,7 +147,8 @@ const selectSquare = async id => {
         if(currentPiece.type === types.king){
             gameOver(lastCurrentPiece.color, methods.mate)
         }
-        clearMovesAndCaptures()
+        removeAllMovesAndCaptures()
+        resetMoveState()
 
         turn += 1
 
@@ -201,34 +205,22 @@ const gameOver = (color, method) => {
 
 }
 
+/*
+    Fetches a promotion type from the GUI. Disables focus changes until this is done. 
+
+    color: number/enum of type color
+*/
 const promotion = color => {return new Promise(async (resolve, reject) => {
     allowFocusChange = false
-    var promotion = await getPromotionType(color)
+    let promotionPiece = await getPromotionType(color)
     allowFocusChange = true
     removePromotionWindow()
-    let promotionPiece = null
-    if(promotion == "Q") {
-        promotionPiece = new Piece(types.queen, color)
-    }
-    else if(promotion == "R") {
-        promotionPiece = new Piece(types.rook, color)
-    }
-    else if(promotion == "B") {
-        promotionPiece = new Piece(types.bishop, color)
-    }
-    else if(promotion == "N") {
-        promotionPiece = new Piece(types.knight, color)
-    }
     return resolve(promotionPiece)
 })}
 
-// Removes moves and captures from board
-const clearMovesAndCaptures = () => {
-    removeAllMovesAndCaptures()
+const resetMoveState = () => {
     currentPiece = null
     currentSquare = null
-    lastCurrentPiece = null
-    lastCurrentSquare = null
     possibleMoves = new PossibleMoves()
 }
 
@@ -290,7 +282,6 @@ const updateTime = () => {
 }
 
 
-
 const initializeGlobalVariables = () => {
     MODE = getMode()
 
@@ -309,7 +300,8 @@ const resetGame = () => {
     window.location.replace("/twoplayer/")
     /* 
     resetGlobalValues()
-    clearMovesAndCaptures()
+    removeAllMovesAndCaptures()
+    resetMoveState()
     clearPreviousMovesDisplay()
     renderChessboard()
     console.log("reset game MIF:" + moveInFocus)

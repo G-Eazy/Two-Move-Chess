@@ -220,6 +220,15 @@ const copyChessboard = chessboard => {
     return newChessboard
 }
 
+/*
+    Generates and returns a new chessboardhistory
+
+*/
+const getNewChessboardHistory = () => {
+    return [copyChessboard(initialChessboard)]
+}
+
+
 
 /*
     Takes a castlingstate and returns a copy
@@ -238,12 +247,14 @@ const copyCastlingState = cs => {
 }
 
 /*
-    Generates and returns a new chessboardhistory
-
+    Generates a new castlingStates list
 */
-const getNewChessboardHistory = () => {
-    return [copyChessboard(initialChessboard)]
+
+const getNewCastlingStates = () => {
+    return [copyCastlingState(castlingState)]
 }
+
+
 
 /*
     Gets the move string, as to be displayed.
@@ -292,7 +303,12 @@ const getMoveString = (piece, squareFrom, squareTo, capture, conditional=null, p
     return moveString
 }
 
+/*
+    Takes number from enum type and returns corresponding piece string
 
+    type: number
+
+*/
 const typeIdToTypeName = type => {
     let retType = 0
     switch(type) {
