@@ -365,12 +365,32 @@ html, body{
 }
 
 .time-display{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    height:100%;
+    width: 100%;
+    grid-template-columns: 1fr 30px 1fr;
     font-weight: bold;
     font-size: 45px;  
 }
+
+.time-display-left{
+    display:flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.time-display-middle{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-display-right{
+    display:flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
 
 .user-display{
     display: flex;

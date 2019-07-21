@@ -340,17 +340,21 @@ const updateTimeDisplay = (whiteTime, blackTime) => {
     whiteTime = Math.round(whiteTime / 1000)
     blackTime = Math.round(blackTime / 1000)
 
-    let HTMLTimeWhite = document.getElementById("time-white") 
+    let HTMLTimeWhiteLeft = document.getElementById("time-white-left") 
+    let HTMLTimeWhiteRight = document.getElementById("time-white-right") 
+    HTMLTimeWhiteLeft.innerHTML = Math.floor(whiteTime / 60)
     if((whiteTime % 60) < 10){
-        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":0" + (whiteTime % 60)
+        HTMLTimeWhiteRight.innerHTML = "0" + (whiteTime % 60)
     }else{
-        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
+        HTMLTimeWhiteRight.innerHTML = "" + (whiteTime % 60)
     }
-    let HTMLTimeBlack = document.getElementById("time-black") 
+    let HTMLTimeBlackLeft = document.getElementById("time-black-left") 
+    let HTMLTimeBlackRight = document.getElementById("time-black-right") 
+    HTMLTimeBlackLeft.innerHTML = Math.floor(blackTime / 60)
     if((blackTime % 60) < 10){
-        HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":0" + (whiteTime % 60)
+        HTMLTimeBlackRight.innerHTML = "0" + (blackTime % 60)
     }else{
-        HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
+        HTMLTimeBlackRight.innerHTML = ""+ (blackTime % 60)
     }
 }
 
