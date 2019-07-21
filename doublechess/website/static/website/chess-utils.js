@@ -21,6 +21,17 @@ const sides = {
     'queen':1
 }
 
+// enum for castling states
+const castlingState = {
+    "whiteKingMoved" : false,
+    "whiteHRookMoved" : false,
+    "whiteARookMoved" : false,
+    "blackKingMoved" : false,
+    "blackHRookMoved" : false,
+    "blackARookMoved" : false
+}
+
+
 
 // Piece class, containing fields type and color.
 class Piece {
@@ -207,6 +218,23 @@ const copyChessboard = chessboard => {
         newChessboard.push(newRow)
     }
     return newChessboard
+}
+
+
+/*
+    Takes a castlingstate and returns a copy
+
+    cs: object, castlingstate
+*/
+const copyCastlingState = cs => {
+    let newCS = {}
+    newCS.whiteKingMoved = cs.whiteKingMoved
+    newCS.whiteHRookMoved = cs.whiteHRookMoved
+    newCS.whiteARookMoved = cs.whiteARookMoved
+    newCS.blackKingMoved = cs.blackKingMoved
+    newCS.blackHRookMoved = cs.blackHRookMoved
+    newCS.blackARookMoved = cs.blackARookMoved
+    return newCS
 }
 
 /*
@@ -842,4 +870,92 @@ const kingMoves = (chessboard, row, column, otherColor, cs) => {
     }
     
     return possibleMoves
+}
+
+/*  
+    Moves the piece from squareFrom to squareTo on the chessboard. 
+    Changes the castling state and the chessboard.
+
+    chessboard: 2D array of pieces (objects)
+    cs: castling state object
+    squareFrom: object, class:Square
+    squareTo: object, class:Square
+    capture: boolean
+*/
+const movePiece = (chessboard, cs ,squareFrom, squareTo, promotionPiece) =>{
+    
+    let piece = chessboard[squareFrom.row][squareFrom.col]
+    chessboard[squareFrom.row][squareFrom.col] = new Piece(0)
+        
+
+    if(promotionPiece !== null){
+        chessboard[squareTo.row][squareTo.col] = promotionPiece
+        return
+    }
+   
+    // Castling state
+    if(piece.type === types.king) {
+        if(piece.color === colors.white) {
+            if(! cs.whiteKingMoved && squareTo.col === 6) {
+                chessboard[7][6] = piece
+                chessboard[7][5] = chessboard[7][7]
+                chessboard[7][7] = new Piece(0)
+                cs.whiteHRookMoved = true
+                cs.whiteKingMoved = true
+                return
+            }
+            else if(! cs.whiteKingMoved && squareTo.col === 2) {
+                chessboard[7][2] = piece
+                chessboard[7][3] = chessboard[7][0]
+                chessboard[7][0] = new Piece(0)
+                cs.whiteARookMoved = true
+                cs.whiteKingMoved = true
+                return
+            }
+            cs.whiteKingMoved = true
+        }
+        else {
+            if(! cs.blackKingMoved && squareTo.col === 6) {
+                chessboard[0][6] = piece
+                chessboard[0][5] = chessboard[0][7]
+                chessboard[0][7] = new Piece(0)
+                cs.blackHRookMoved = true
+                cs.blackKingMoved = true
+                return
+            
+            }
+            else if(! cs.blackKingMoved && squareTo.col === 2) {
+                chessboard[0][2] = piece
+                chessboard[0][3] = chessboard[0][0]
+                chessboard[0][0] = new Piece(0)
+                cs.blackARookMoved = true
+                cs.blackKingMoved = true
+                return
+            }
+            cs.blackKingMoved = true
+        }
+
+    } 
+    else if(piece.type === types.rook) {
+        if(piece.color === colors.white) {
+            if(squareFrom.col === 0 && squareFrom.row === 7) {
+                cs.whiteARookMoved = true
+            }
+            else if(squareFrom.col === 7 && squareFrom.row === 7) {
+                cs.whiteHRookMoved = true
+            }
+        }
+        else {
+            if(squareFrom.col === 0 && squareFrom.row === 0) {
+                cs.blackARookMoved = true
+            }
+            else if(squareFrom.col === 7 && squareFrom.row === 0) {
+                cs.blackHRookMoved = true
+            }
+        
+        }
+    }
+    
+    chessboard[squareTo.row][squareTo.col] = piece
+    return
 }

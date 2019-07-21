@@ -6,15 +6,6 @@ const methods = {
     'mate':2
 }
 
-const castlingState = {
-    "whiteKingMoved" : false,
-    "whiteHRookMoved" : false,
-    "whiteARookMoved" : false,
-    "blackKingMoved" : false,
-    "blackHRookMoved" : false,
-    "blackARookMoved" : false
-}
-
 const modes = {
     'homepage' : 0,
     'tutorial' : 1, 
@@ -43,6 +34,7 @@ var turn = 1
 
 const chessboardHistory = getNewChessboardHistory()
 const moves = []
+const castlingStates = [copyCastlingState(castlingState)]
 
 // Should take an INTEGER
 const changeDisplayFocus = newMoveInFocus => {
@@ -87,7 +79,7 @@ const selectSquare = async id => {
         }
         // Square selected holds a piece
         else {
-            possibleMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], currentPiece, currentSquare.row, currentSquare.col, castlingState)
+            possibleMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], currentPiece, currentSquare.row, currentSquare.col, castlingStates[castlingStates.length-1])
             highlightMoves(possibleMoves.moves)
             highlightCaptures(possibleMoves.captures)
         }
@@ -122,15 +114,17 @@ const selectSquare = async id => {
             isCapture = true
         }
 
-        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory[chessboardHistory.length-1], castlingState)
+        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory[chessboardHistory.length-1], castlingStates[castlingStates.length-1])
         let shortCastle = isShortCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
         let longCastle = isLongCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
         let moveString = getMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, isCapture, conditional, promotionPiece, shortCastle, longCastle)
         moves.push(moveString)
 
         let newChessBoard = copyChessboard(chessboardHistory[chessboardHistory.length-1])
-        movePiece(newChessBoard,lastCurrentSquare, currentSquare, promotionPiece)
+        let newCastlingState = copyCastlingState(castlingStates[castlingStates.length-1])
+        movePiece(newChessBoard,newCastlingState,lastCurrentSquare, currentSquare, promotionPiece)
         chessboardHistory.push(newChessBoard)
+        castlingStates.push(newCastlingState)
 
         updatePreviousMovesDisplay(moves)
         changeDisplayFocus(moves.length)
@@ -159,92 +153,6 @@ const selectSquare = async id => {
         }
 
     }
-}
-
-/*  
-    Moves the piece from squareFrom to squareTo on the chessboard. 
-    Changes the castling state and the chessboard.
-
-    squareFrom: object, class:Square
-    squareTo: object, class:Square
-    capture: boolean
-*/
-const movePiece = (chessboard, squareFrom, squareTo, promotionPiece) =>{
-    
-    let piece = chessboard[squareFrom.row][squareFrom.col]
-    chessboard[squareFrom.row][squareFrom.col] = new Piece(0)
-        
-
-    if(promotionPiece !== null){
-        chessboard[squareTo.row][squareTo.col] = promotionPiece
-        return
-    }
-   
-    // Castling state
-    if(piece.type === types.king) {
-        if(piece.color === colors.white) {
-            if(! castlingState.whiteKingMoved && squareTo.col === 6) {
-                chessboard[7][6] = piece
-                chessboard[7][5] = chessboard[7][7]
-                chessboard[7][7] = new Piece(0)
-                castlingState.whiteHRookMoved = true
-                castlingState.whiteKingMoved = true
-                return
-            }
-            else if(! castlingState.whiteKingMoved && squareTo.col === 2) {
-                chessboard[7][2] = piece
-                chessboard[7][3] = chessboard[7][0]
-                chessboard[7][0] = new Piece(0)
-                castlingState.whiteARookMoved = true
-                castlingState.whiteKingMoved = true
-                return
-            }
-            castlingState.whiteKingMoved = true
-        }
-        else {
-            if(! castlingState.blackKingMoved && squareTo.col === 6) {
-                chessboard[0][6] = piece
-                chessboard[0][5] = chessboard[0][7]
-                chessboard[0][7] = new Piece(0)
-                castlingState.blackHRookMoved = true
-                castlingState.blackKingMoved = true
-                return
-            
-            }
-            else if(! castlingState.blackKingMoved && squareTo.col === 2) {
-                chessboard[0][2] = piece
-                chessboard[0][3] = chessboard[0][0]
-                chessboard[0][0] = new Piece(0)
-                castlingState.blackARookMoved = true
-                castlingState.blackKingMoved = true
-                return
-            }
-            castlingState.blackKingMoved = true
-        }
-
-    } 
-    else if(piece.type === types.rook) {
-        if(piece.color === colors.white) {
-            if(squareFrom.col === 0 && squareFrom.row === 7) {
-                castlingState.whiteARookMoved = true
-            }
-            else if(squareFrom.col === 7 && squareFrom.row === 7) {
-                castlingState.whiteHRookMoved = true
-            }
-        }
-        else {
-            if(squareFrom.col === 0 && squareFrom.row === 0) {
-                castlingState.blackARookMoved = true
-            }
-            else if(squareFrom.col === 7 && squareFrom.row === 0) {
-                castlingState.blackHRookMoved = true
-            }
-        
-        }
-    }
-    
-    chessboard[squareTo.row][squareTo.col] = piece
-    return
 }
 
 const gameOver = (color, method) => {
@@ -405,12 +313,9 @@ const resetGlobalValues = () => {
 
     // this is the not easy fix
     //moves = []
-    castlingState.whiteKingMoved = false
-    castlingState.whiteHRookMoved = false
-    castlingState.whiteARookMoved = false
-    castlingState.blackKingMoved = false
-    castlingState.blackHRookMoved = false
-    castlingState.blackARookMoved = false
+    while(castlingStates.length > 1){
+        castlingStates.pop()
+    }
     
     allowMoves = true
     allowFocusChange = true
