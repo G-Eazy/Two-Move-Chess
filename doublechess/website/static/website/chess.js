@@ -45,7 +45,9 @@ const changeDisplayFocus = newMoveInFocus => {
     if(moveInFocus === chessboardHistory.length - 1){
         allowMoves = true
     }else{
-        allowMoves = false
+        if(MODE !== modes.analysis){
+            allowMoves = false
+        }
     }
     renderPieces(chessboardHistory[moveInFocus])
 } 
@@ -59,7 +61,7 @@ const selectSquare = async id => {
     
     let legalColor = null
 
-    if(turn % 4 === 0 || turn % 4 === 1){
+    if(moveInFocus % 4 === 0 || moveInFocus % 4 === 3){
         legalColor = colors.white
     }else{
         legalColor = colors.black
@@ -79,7 +81,7 @@ const selectSquare = async id => {
         }
         // Square selected holds a piece
         else {
-            possibleMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], currentPiece, currentSquare.row, currentSquare.col, castlingStates[castlingStates.length-1])
+            possibleMoves = getAvailableMoves(chessboardHistory[moveInFocus], currentPiece, currentSquare.row, currentSquare.col, castlingStates[moveInFocus])
             highlightMoves(possibleMoves.moves)
             highlightCaptures(possibleMoves.captures)
         }
@@ -98,6 +100,14 @@ const selectSquare = async id => {
             clearMovesAndCaptures()
             selectSquare(id)
             return
+        }
+
+        // This is for single tree takeback in analasis mode:
+        while(MODE === modes.analysis && (moveInFocus+1) < turn){
+            chessboardHistory.pop()
+            castlingStates.pop()
+            moves.pop()
+            turn -= 1
         }
 
 
