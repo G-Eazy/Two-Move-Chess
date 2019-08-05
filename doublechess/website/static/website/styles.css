@@ -354,6 +354,10 @@ html, body{
     background-image: url('/static/website/images/revert.svg')
 }
 
+#resign-button-image{
+    background-image: url('/static/website/images/resign.svg')
+}
+
 .left-display{
     display:grid;
     grid-template-rows: 1fr 0.4fr 2fr 1fr 0.4fr 1fr;
