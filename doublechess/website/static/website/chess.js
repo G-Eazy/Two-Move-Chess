@@ -6,15 +6,6 @@ const methods = {
     'mate':2
 }
 
-const castlingState = {
-    "whiteKingMoved" : false,
-    "whiteHRookMoved" : false,
-    "whiteARookMoved" : false,
-    "blackKingMoved" : false,
-    "blackHRookMoved" : false,
-    "blackARookMoved" : false
-}
-
 const modes = {
     'homepage' : 0,
     'tutorial' : 1, 
@@ -43,6 +34,7 @@ var turn = 1
 
 const chessboardHistory = getNewChessboardHistory()
 const moves = []
+const castlingStates = [copyCastlingState(castlingState)]
 
 // Should take an INTEGER
 const changeDisplayFocus = newMoveInFocus => {
@@ -53,7 +45,9 @@ const changeDisplayFocus = newMoveInFocus => {
     if(moveInFocus === chessboardHistory.length - 1){
         allowMoves = true
     }else{
-        allowMoves = false
+        if(MODE !== modes.analysis){
+            allowMoves = false
+        }
     }
     renderPieces(chessboardHistory[moveInFocus])
 } 
@@ -67,7 +61,7 @@ const selectSquare = async id => {
     
     let legalColor = null
 
-    if(turn % 4 === 0 || turn % 4 === 1){
+    if(moveInFocus % 4 === 0 || moveInFocus % 4 === 3){
         legalColor = colors.white
     }else{
         legalColor = colors.black
@@ -87,7 +81,7 @@ const selectSquare = async id => {
         }
         // Square selected holds a piece
         else {
-            possibleMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], currentPiece, currentSquare.row, currentSquare.col, castlingState)
+            possibleMoves = getAvailableMoves(chessboardHistory[moveInFocus], currentPiece, currentSquare.row, currentSquare.col, castlingStates[moveInFocus])
             highlightMoves(possibleMoves.moves)
             highlightCaptures(possibleMoves.captures)
         }
@@ -102,34 +96,56 @@ const selectSquare = async id => {
         currentSquare = new Square(parseInt(id.substring(0, 1)), parseInt(id.substring(1, 2)))
         currentPiece = chessboardHistory[moveInFocus][currentSquare.row][currentSquare.col]
         
-        if(!legalMove()) {
-            clearMovesAndCaptures() 
+        if(!isPossibleMove(currentSquare, possibleMoves)) {
+            clearMovesAndCaptures()
+            selectSquare(id)
             return
         }
 
-        chessboardHistory.push(copyChessboard(chessboardHistory[chessboardHistory.length -1]))
+        // This is for single tree takeback in analasis mode:
+        while(MODE === modes.analysis && (moveInFocus+1) < turn){
+            chessboardHistory.pop()
+            castlingStates.pop()
+            moves.pop()
+            turn -= 1
+        }
+
 
         // Don't change position of this variable. Must happen before movePiece
         moveInFocus += 1
         
-        // Move to empty square
-        if(currentPiece.type === types.none) {
-            await movePiece(lastCurrentSquare, currentSquare, false)
-            clearMovesAndCaptures()
-        }
-        // Capture enemy piece
-        else if(lastCurrentPiece.color != currentPiece.color) {
-            await movePiece(lastCurrentSquare, currentSquare, true)
-            clearMovesAndCaptures()
-        }
-        else {
-            console.log("shouldnt happen")
-            clearMovesAndCaptures()
-            return
+        let promotionPiece = null
+        if(isPromotion(lastCurrentPiece, currentSquare)){
+            promotionPiece = await promotion(lastCurrentPiece.color)
         }
 
-        // Move or capture has been made
+        let isCapture = false
+        if(currentPiece.type !== types.none){
+            isCapture = true
+        }
+
+        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory[chessboardHistory.length-1], castlingStates[castlingStates.length-1])
+        let shortCastle = isShortCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
+        let longCastle = isLongCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
+        let moveString = getMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, isCapture, conditional, promotionPiece, shortCastle, longCastle)
+        moves.push(moveString)
+
+        let newChessBoard = copyChessboard(chessboardHistory[chessboardHistory.length-1])
+        let newCastlingState = copyCastlingState(castlingStates[castlingStates.length-1])
+        movePiece(newChessBoard,newCastlingState,lastCurrentSquare, currentSquare, promotionPiece)
+        chessboardHistory.push(newChessBoard)
+        castlingStates.push(newCastlingState)
+
+        updatePreviousMovesDisplay(moves)
+        changeDisplayFocus(moves.length)
         renderPieces(chessboardHistory[moveInFocus])
+
+        // Means that game is over
+        if(currentPiece.type === types.king){
+            gameOver(lastCurrentPiece.color, methods.mate)
+        }
+        clearMovesAndCaptures()
+
         turn += 1
 
         if(MODE === modes.twoplayer) {
@@ -148,130 +164,6 @@ const selectSquare = async id => {
 
     }
 }
-
-const legalMove = () => {
-    for(let elem of possibleMoves.moves) {
-        if(currentSquare.id === elem) {
-            return true
-        } 
-    }
-    for(let elem of possibleMoves.captures) {
-        if(currentSquare.id === elem) {
-            return true
-        } 
-    }
-    return false
-}
-
-const movePiece = (squareFrom, squareTo, capture) => {return new Promise(async (resolve, reject) =>{
-
-    let squareFromRow = parseInt(squareFrom.id.substring(0, 1))
-    let squareFromColumn = parseInt(squareFrom.id.substring(1, 2))
-    
-    let squareToRow = parseInt(squareTo.id.substring(0, 1))
-    let squareToColumn = parseInt(squareTo.id.substring(1, 2))
-    let piece = getPieceById(squareFrom.id)
-    let promotionPiece = null
-    
-    let conditional = anotherPieceCanJump(piece, squareFrom, squareTo)
-
-    chessboardHistory[moveInFocus][squareFromRow][squareFromColumn] = new Piece(0)
-        
-    // game over
-    if(chessboardHistory[moveInFocus][squareToRow][squareToColumn].type === types.king) {
-        let winner = chessboardHistory[moveInFocus][squareToRow][squareToColumn].color === colors.white ? colors.black : colors.white
-        chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
-        renderPieces(chessboardHistory[moveInFocus])
-        gameOver(winner, methods.mate)
-        return
-    }
-
-
-    // Case of pawn promotion
-    if(piece.type === types.pawn) {
-        if((piece.color === colors.white && squareToRow === 0) 
-            || (piece.color === colors.black && squareToRow === 7)) {
-            promotionPiece = await promotion(piece.color)
-            chessboardHistory[moveInFocus][squareToRow][squareToColumn] = promotionPiece
-            addMoveString(piece, squareFrom, squareTo, capture, null, promotionPiece) 
-            return resolve()
-        }
-    }
-
-    
-    // Castling state
-    if(piece.type === types.king) {
-        if(piece.color === colors.white) {
-            if(! castlingState.whiteKingMoved && squareToColumn === 6) {
-                chessboardHistory[moveInFocus][7][6] = piece
-                chessboardHistory[moveInFocus][7][5] = chessboardHistory[moveInFocus][7][7]
-                chessboardHistory[moveInFocus][7][7] = new Piece(0)
-                castlingState.whiteHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) /// why can i not skip unused variables
-                castlingState.whiteKingMoved = true
-                return resolve()
-            
-            }
-            else if(! castlingState.whiteKingMoved && squareToColumn === 2) {
-                chessboardHistory[moveInFocus][7][2] = piece
-                chessboardHistory[moveInFocus][7][3] = chessboardHistory[moveInFocus][7][0]
-                chessboardHistory[moveInFocus][7][0] = new Piece(0)
-                castlingState.whiteARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
-                castlingState.whiteKingMoved = true
-                return resolve()
-            }
-            castlingState.whiteKingMoved = true
-        }
-        else {
-            if(! castlingState.blackKingMoved && squareToColumn === 6) {
-                chessboardHistory[moveInFocus][0][6] = piece
-                chessboardHistory[moveInFocus][0][5] = chessboardHistory[moveInFocus][0][7]
-                chessboardHistory[moveInFocus][0][7] = new Piece(0)
-                castlingState.blackHRookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, true) 
-                castlingState.blackKingMoved = true
-                return resolve()
-            
-            }
-            else if(! castlingState.blackKingMoved && squareToColumn === 2) {
-                chessboardHistory[moveInFocus][0][2] = piece
-                chessboardHistory[moveInFocus][0][3] = chessboardHistory[moveInFocus][0][0]
-                chessboardHistory[moveInFocus][0][0] = new Piece(0)
-                castlingState.blackARookMoved = true
-                addMoveString(piece, squareFrom, squareTo, capture, null, null, false, true) 
-                castlingState.blackKingMoved = true
-                return resolve()
-            }
-            castlingState.blackKingMoved = true
-        }
-
-    } 
-    else if(piece.type === types.rook) {
-        if(piece.color === colors.white) {
-            if(squareFromColumn === 0 && squareFromRow === 7) {
-                castlingState.whiteARookMoved = true
-            }
-            else if(squareFromColumn === 7 && squareFromRow === 7) {
-                castlingState.whiteHRookMoved = true
-            }
-        }
-        else {
-            if(squareFromColumn === 0 && squareFromRow === 0) {
-                castlingState.blackARookMoved = true
-            }
-            else if(squareFromColumn === 7 && squareFromRow === 0) {
-                castlingState.blackHRookMoved = true
-            }
-        
-        }
-    }
-    
-    chessboardHistory[moveInFocus][squareToRow][squareToColumn] = piece
-    addMoveString(piece, squareFrom, squareTo, capture, conditional) 
-    return resolve()
-})}
-
 
 const gameOver = (color, method) => {
     let winner = color === colors.white ? "white" : "black"
@@ -330,80 +222,6 @@ const promotion = color => {return new Promise(async (resolve, reject) => {
     return resolve(promotionPiece)
 })}
 
-
-const addMoveString = (piece, squareFrom, squareTo, capture, conditional=null, promotionPiece=null, shortCastles=false, longCastles=false) => {
-    
-    let moveString = getMoveString(piece, squareFrom, squareTo, capture, conditional, promotionPiece, shortCastles, longCastles)
-    moves.push(moveString)
-    updatePreviousMovesDisplay(moves)
-    changeDisplayFocus(moves.length)
-}
-
-const anotherPieceCanJump = (piece, squareFrom, squareTo) => {
-    // Store current moves 
-    let currentMoves = possibleMoves
-    possibleMoves = new PossibleMoves() 
-    let string = ""
-
-    let pieces = getPieces(piece.color, piece.type, squareFrom)
-    if(pieces.length === 0) {
-        return null
-    }
-    else {
-        for(let sq of pieces) {
-            let row = parseInt(sq.substring(0, 1))
-            let column = parseInt(sq.substring(1, 2))
-            let pieceMoves = getAvailableMoves(chessboardHistory[chessboardHistory.length - 1], piece, row, column, castlingState)
-            if(pieceMoves.moves.includes(squareTo.id) 
-            || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
-
-                if(sameRow(sq, squareFrom.id)) {
-                    string += getLetterFromId(squareFrom.id)
-                }
-                else if(sameColumn(sq, squareFrom.id)) {
-                    string += (8 - parseInt(squareFrom.id.substring(0, 1)))
-                }
-                else {
-                    string += getLetterFromId(squareFrom.id)
-                }
-                return string
-            }
-        possibleMoves = new PossibleMoves()
-        }
-    }
-    // Restore current moves
-    possibleMoves = currentMoves
-    return null
-}
-
-const sameRow = (square1, square2) => {
-    return (parseInt(square1.substring(0, 1)) === parseInt(square2.substring(0, 1)))
-}
-const sameColumn = (square1, square2) => {
-    return (parseInt(square1.substring(1, 2)) === parseInt(square2.substring(1, 2)))
-}
-
-
-const getPieces = (color, type, square) => {
-    let pieces = []
-    let rowIndex = 0
-    let columnIndex = 0
-    for(let row of chessboardHistory[moveInFocus]) {
-        for(let piece of row) {
-            let squareID = (rowIndex + "" + columnIndex)
-            if(piece.color === color && piece.type === type && square.id != squareID) {
-                pieces.push(squareID)
-            }
-            columnIndex += 1
-        }
-        rowIndex += 1
-        columnIndex = 0
-    }
-    return pieces
-}
-
-
-
 // Removes moves and captures from board
 const clearMovesAndCaptures = () => {
     removeAllMovesAndCaptures()
@@ -412,13 +230,6 @@ const clearMovesAndCaptures = () => {
     lastCurrentPiece = null
     lastCurrentSquare = null
     possibleMoves = new PossibleMoves()
-}
-
-// Returns an object of class Piece on a given id (square)
-const getPieceById = id => {
-    let row = parseInt(id.substring(0, 1))
-    let column = parseInt(id.substring(1, 2))
-    return chessboardHistory[moveInFocus][row][column]
 }
 
 const changeToMove = moveNumber => {
@@ -512,12 +323,9 @@ const resetGlobalValues = () => {
 
     // this is the not easy fix
     //moves = []
-    castlingState.whiteKingMoved = false
-    castlingState.whiteHRookMoved = false
-    castlingState.whiteARookMoved = false
-    castlingState.blackKingMoved = false
-    castlingState.blackHRookMoved = false
-    castlingState.blackARookMoved = false
+    while(castlingStates.length > 1){
+        castlingStates.pop()
+    }
     
     allowMoves = true
     allowFocusChange = true

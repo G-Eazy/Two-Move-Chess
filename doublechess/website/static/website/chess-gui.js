@@ -340,10 +340,39 @@ const updateTimeDisplay = (whiteTime, blackTime) => {
     whiteTime = Math.round(whiteTime / 1000)
     blackTime = Math.round(blackTime / 1000)
 
-    let HTMLTimeWhite = document.getElementById("time-bottom") 
-    HTMLTimeWhite.innerHTML = Math.floor(whiteTime / 60) + ":" + (whiteTime % 60)
-    
-    let HTMLTimeBlack = document.getElementById("time-top") 
-    HTMLTimeBlack.innerHTML = Math.floor(blackTime / 60) + ":" + (blackTime % 60)
+    let HTMLTimeWhiteLeft = document.getElementById("time-white-left") 
+    let HTMLTimeWhiteRight = document.getElementById("time-white-right") 
+    HTMLTimeWhiteLeft.innerHTML = Math.floor(whiteTime / 60)
+    if((whiteTime % 60) < 10){
+        HTMLTimeWhiteRight.innerHTML = "0" + (whiteTime % 60)
+    }else{
+        HTMLTimeWhiteRight.innerHTML = "" + (whiteTime % 60)
+    }
+    let HTMLTimeBlackLeft = document.getElementById("time-black-left") 
+    let HTMLTimeBlackRight = document.getElementById("time-black-right") 
+    HTMLTimeBlackLeft.innerHTML = Math.floor(blackTime / 60)
+    if((blackTime % 60) < 10){
+        HTMLTimeBlackRight.innerHTML = "0" + (blackTime % 60)
+    }else{
+        HTMLTimeBlackRight.innerHTML = ""+ (blackTime % 60)
+    }
+}
+
+const reverseTimeDisplay = () => {
+
+    let topTimeContainer = document.getElementById("top-time-container")
+    let topUsernameContainer = document.getElementById("top-username-container")
+    let bottomUsernameContainer = document.getElementById("bottom-username-container")
+    let bottomTimeContainer = document.getElementById("bottom-time-container")
+
+    let topTime = topTimeContainer.removeChild(topTimeContainer.firstElementChild)
+    let topUsername = topUsernameContainer.removeChild(topUsernameContainer.firstElementChild)
+    let bottomUsername = bottomUsernameContainer.removeChild(bottomUsernameContainer.firstElementChild)
+    let bottomTime = bottomTimeContainer.removeChild(bottomTimeContainer.firstElementChild)
+
+    topTimeContainer.appendChild(bottomTime)
+    bottomTimeContainer.appendChild(topTime)
+    topUsernameContainer.appendChild(bottomUsername)
+    bottomUsernameContainer.appendChild(topUsername)
 
 }
