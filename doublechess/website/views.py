@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from .forms import UserRegisterForm
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def homepage(request):
@@ -37,3 +38,42 @@ def playonline(request):
         increment = data["increment"]
 
     return render(request, 'website/gameselect.html')
+
+def register(request):
+
+    if request.method == 'POST':
+        print("user-request post", flush=True)
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}!')
+            return redirect('homepage')
+        else:
+            print("Invalid form")
+    else: 
+        form = UserRegisterForm()
+    
+    context = {'form':form}
+    return render(request, 'website/register.html', context)
+    
+
+def login(request):
+
+    if request.method == 'POST':
+
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            return HttpResponse("Congrats, you are logged in")
+        else:
+            form = AuthenticationForm()
+            login_error = "Invalid username or password"
+            context = {'login_error':login_error, 'form':form}
+
+
+    else:
+        form = AuthenticationForm()
+        context = {'form':form}
+
+    return render(request, 'website/login.html', context)
+

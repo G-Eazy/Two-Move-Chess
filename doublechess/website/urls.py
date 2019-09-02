@@ -9,6 +9,7 @@ urlpatterns = [
     path('twoplayer/', views.twoplayer, name='twoplayer'),
     path('analysis/', views.analysis, name='analysis'),
     path('.well-known/security.txt', views.security, name='security'),
-    path('user/', views.user, name='user'),
+    path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
     path('playonline/', views.playonline, name="playonline")
 ]

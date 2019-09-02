@@ -1,7 +1,7 @@
 {% extends 'website/base.html'%}
 {% load static %}
 
-{% block head %}jj
+{% block head %}
 <link href='{% static "website/userstyles.css"%}' rel='stylesheet'>
 {% endblock %}
 
@@ -14,19 +14,16 @@
         <br>
         {{ form  }}
         <br>
-        <button class='submit-button'>Submit</button>
+        <button class='submit-button'>Sign Up</button>
     </form>
-</div>
+    <div class="login">
+        <small class="text-muted">
+            Already Have An Account? 
+            <a href='{% url "login" %}'>Log In Here</a>
+        </small>
 
-<div class='user-container-login'>
-    <form method='POST' class='user-login-container' id='login'>
-        <h2>Log in</h2>
-        <br>
-        {{ form  }}
-        <br>
-        <button class='submit-button'>Log in</button>
+    </div>
 </div>
-
 
 
 {% endblock %}
