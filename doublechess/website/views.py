@@ -27,9 +27,25 @@ def debug(request):
 def security(request):
     return render(request, 'website/security.txt')
 
+def playonline(request):
+
+    print("playonline request happened", flush=True)
+
+    if request.method == 'POST':
+        data = request.POST.dict()
+        starttime = data["starttime"]
+        increment = data["increment"]
+        
+
+
+    return render(request, 'website/gameselect.html')
+
 def user(request):
     
+    print("user-request", flush=True)
+
     if request.method == 'POST':
+        print("user-request post", flush=True)
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()

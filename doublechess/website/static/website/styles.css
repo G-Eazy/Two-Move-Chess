@@ -434,3 +434,9 @@ html, body{
 .left-display-button:hover{
     background-color: #EEDDEE;
 }
+
+.centralize{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

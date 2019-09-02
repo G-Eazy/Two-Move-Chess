@@ -8,7 +8,8 @@ urlpatterns = [
     path('debug/', views.debug, name='debug'),
     path('twoplayer/', views.twoplayer, name='twoplayer'),
     path('analysis/', views.analysis, name='analysis'),
-    path('.well-known/security.txt', views.security, name='security')
-    path('user/', views.user, name='user')
+    path('.well-known/security.txt', views.security, name='security'),
+    path('user/', views.user, name='user'),
+    path('playonline/', views.playonline, name="playonline")
 ]
 
