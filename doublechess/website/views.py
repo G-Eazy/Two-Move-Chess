@@ -27,21 +27,13 @@ def debug(request):
 def security(request):
     return render(request, 'website/security.txt')
 
-def user(request):
-    
-    print(request.POST.dict, flush=True)
+def playonline(request):
+
+    print("playonline request happened", flush=True)
 
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            return redirect('homepage')
-        else:
-            print("form invalid")
-    else: 
-        form = UserRegisterForm()
-    
-    context = {'form':form}
-    return render(request, 'website/user.html', context)
+        data = request.POST.dict()
+        starttime = data["starttime"]
+        increment = data["increment"]
+
+    return render(request, 'website/gameselect.html')

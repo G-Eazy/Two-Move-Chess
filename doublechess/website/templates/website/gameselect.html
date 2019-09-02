@@ -1,0 +1,47 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+<script src='{% static "website/jquery-3.4.1.js" %}'></script>
+<script src='{% static "website/gameselect.js"%}'></script>
+<link href='{% static "website/gameselect.css"%}' rel='stylesheet'>
+{% endblock %}
+
+{% block content %}
+
+<div class='gameselect-container'>
+
+    <form method="POST" class='time-select' id="time-form">
+        {% csrf_token %}
+        <div class="centralize">
+            <label for="starttime">Time (min):</label>
+        </div>
+        <div class="centralize">
+            <input class="timeinput" id="starttime" type="text" maxlength="3">
+        </div>
+        <div class="centralize">
+            <label for="increment">Increment (sec):</label>
+        </div>
+        <div class="centralize">
+            <input class="timeinput" id="increment" type="text" maxlength="3">
+        </div>
+        <div class="centralize time-select-bottom">
+            <button type="submit" id="create-challenge">Create challenge</button>
+        </div>
+        <div class="centralize" id="message-box">
+            <p id="message"></p>
+        </div>
+    </form>
+    <div class='request-display'>
+        <div class='request-display-header'>
+            <div class='request-display-text-box'>
+                <p>Challenges</p>
+            </div>
+        </div>
+        <div class='request-display-body'></div>
+    </div>
+    <div></div>
+
+</div>
+
+{% endblock %}
