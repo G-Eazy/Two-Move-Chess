@@ -8,7 +8,7 @@
 {% block content %}
 
 <div class='user-container'>
-    <form method='POST' class='user-create-container'>
+    <form method='POST' class='user-create-container' id='register'>
         {% csrf_token %}
         <h2>Create user</h2>
         <br>
@@ -17,5 +17,16 @@
         <button class='submit-button'>Submit</button>
     </form>
 </div>
+
+<div class='user-container-login'>
+    <form method='POST' class='user-login-container' id='login'>
+        <h2>Log in</h2>
+        <br>
+        {{ form  }}
+        <br>
+        <button class='submit-button'>Log in</button>
+</div>
+
+
 
 {% endblock %}

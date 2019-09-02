@@ -12,4 +12,3 @@ urlpatterns = [
     path('user/', views.user, name='user'),
     path('playonline/', views.playonline, name="playonline")
 ]
-

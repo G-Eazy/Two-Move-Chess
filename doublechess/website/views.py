@@ -35,24 +35,5 @@ def playonline(request):
         data = request.POST.dict()
         starttime = data["starttime"]
         increment = data["increment"]
-        
-
 
     return render(request, 'website/gameselect.html')
-
-def user(request):
-    
-    print("user-request", flush=True)
-
-    if request.method == 'POST':
-        print("user-request post", flush=True)
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            return redirect('homepage')
-    else: 
-        form = UserRegisterForm()
-    context = {'form':form}
-    return render(request, 'website/user.html', context)
