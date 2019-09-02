@@ -29,6 +29,8 @@ def security(request):
 
 def user(request):
     
+    print(request.POST.dict, flush=True)
+
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
@@ -36,7 +38,10 @@ def user(request):
             username = form.cleaned_data.get('username')
             messages.success(request, f'Account created for {username}!')
             return redirect('homepage')
+        else:
+            print("form invalid")
     else: 
         form = UserRegisterForm()
+    
     context = {'form':form}
     return render(request, 'website/user.html', context)
