@@ -2,13 +2,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from .forms import UserRegisterForm
-<<<<<<< HEAD
 import json
 from django.http import JsonResponse
-=======
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
->>>>>>> fade9e27d7c6be77e3083d5c65e2d8a8a5536d9d
 
 challenges = []
 
@@ -53,19 +50,6 @@ def playonline(request):
         if(starttime > 999 or starttime < 1):
             return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
 
-<<<<<<< HEAD
-        if(increment > 999 or increment < 0):
-            return JsonResponse({"error": "Increment has to be between 0 and 999 seconds!"})
-
-        challenges.append((starttime, increment))
-
-        return JsonResponse({"success": "challenge created successfully", "challenges":challenges})
-
-    return render(request, 'website/gameselect.html')
-
-def user(request):
-    return render(request, '/website/user.html')
-=======
     return render(request, 'website/gameselect.html')
 
 def register(request):
@@ -110,6 +94,3 @@ def login(request):
 def profile(request):
     return render(request, 'website/profile.html')
 
-
-
->>>>>>> fade9e27d7c6be77e3083d5c65e2d8a8a5536d9d
