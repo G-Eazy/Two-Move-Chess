@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from .forms import UserRegisterForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 
 def homepage(request):
@@ -48,7 +49,7 @@ def register(request):
             form.save()
             username = form.cleaned_data.get('username')
             messages.success(request, f'Account created for {username}!')
-            return redirect('homepage')
+            return redirect('login')
         else:
             print("Invalid form")
     else: 
@@ -76,4 +77,10 @@ def login(request):
         context = {'form':form}
 
     return render(request, 'website/login.html', context)
+
+@login_required
+def profile(request):
+    return render(request, 'website/profile.html')
+
+
 

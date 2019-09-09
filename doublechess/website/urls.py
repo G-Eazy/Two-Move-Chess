@@ -1,5 +1,5 @@
-from django.urls import path
-
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -10,6 +10,8 @@ urlpatterns = [
     path('analysis/', views.analysis, name='analysis'),
     path('.well-known/security.txt', views.security, name='security'),
     path('register/', views.register, name='register'),
-    path('login/', views.login, name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='website/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='website/logout.html'), name='logout'),
+    path('profile/', views.profile, name='profile'),
     path('playonline/', views.playonline, name="playonline")
 ]
