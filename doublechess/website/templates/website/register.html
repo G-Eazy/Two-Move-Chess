@@ -1,0 +1,30 @@
+{% extends 'website/base.html'%}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+<link href='{% static "website/userstyles.css"%}' rel='stylesheet'>
+{% endblock %}
+
+{% block content %}
+
+<div class='user-container'>
+    <form method='POST' class='user-create-container' id='register'>
+        {% csrf_token %}
+        <h2>Create user</h2>
+        <br>
+        {{ form|crispy  }}
+        <br>
+        <button class='submit-button'>Sign Up</button>
+    </form>
+    <div class="login">
+        <small class="text-muted">
+            Already Have An Account? 
+            <a href='{% url "login" %}'>Log In Here</a>
+        </small>
+
+    </div>
+</div>
+
+
+{% endblock %}

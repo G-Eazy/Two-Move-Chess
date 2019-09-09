@@ -1,0 +1,12 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+<script src='{% static "website/chess.js"%}'></script>
+{% endblock %}
+
+{% block content %}
+
+<h1>User profile for {{ user.username }}</h1>
+
+{% endblock %}

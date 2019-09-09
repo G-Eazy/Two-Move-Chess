@@ -10,18 +10,32 @@
 <body>
 
     <div class='menu'>
-
+        {% if user.is_authenticated %}
         <ul>
             <li><a href='{% url "homepage" %}'>Homepage</a></li>
             <li><a href='{% url "tutorial" %}'>Tutorial</a></li>
             <li><a href='{% url "twoplayer" %}'>Twoplayer</a></li>
             <li><a href='{% url "analysis" %}'>Analysis</a></li>
-            <li><a href='{% url "user" %}'>User</a></li>
-            <li><a href='{% url "playonline" %}'>online</a></li>
+            <li><a href='{% url "playonline" %}'>Online</a></li>
+            <li><a href='{% url "profile" %}'>Profile</a></li>
             <li style="flex-grow:1;"></li>
+            <li><a href='{% url "logout" %}'>Logout</a></li>
             <li><p>Settings</p></li>
         </ul>
 
+        {% else %}
+        <ul>
+            <li><a href='{% url "homepage" %}'>Homepage</a></li>
+            <li><a href='{% url "tutorial" %}'>Tutorial</a></li>
+            <li><a href='{% url "twoplayer" %}'>Twoplayer</a></li>
+            <li><a href='{% url "analysis" %}'>Analysis</a></li>
+            <li><a href='{% url "register" %}'>Register</a></li>
+            <li><a href='{% url "playonline" %}'>Online</a></li>
+            <li style="flex-grow:1;"></li>
+            <li><a href='{% url "login" %}'>Login</a></li>
+            <li><p>Settings</p></li>
+        </ul>
+        {% endif %}
     </div>
 
     <div class='main-content'>
