@@ -94,5 +94,3 @@ def login(request):
 def profile(request):
     return render(request, 'website/profile.html')
 
-
-
