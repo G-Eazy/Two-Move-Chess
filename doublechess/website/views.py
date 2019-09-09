@@ -2,7 +2,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from .forms import UserRegisterForm
+import json
+from django.http import JsonResponse
 
+challenges = []
 
 def homepage(request):
     context = {}
@@ -35,5 +38,24 @@ def playonline(request):
         data = request.POST.dict()
         starttime = data["starttime"]
         increment = data["increment"]
+        print(data, flush=True)
+        try:
+            starttime = int(starttime)
+            increment = int(increment)
+        except ValueError:
+            return JsonResponse({"error": "Start time and increment have to be integers!"})
+        
+        if(starttime > 999 or starttime < 1):
+            return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
+
+        if(increment > 999 or increment < 0):
+            return JsonResponse({"error": "Increment has to be between 0 and 999 seconds!"})
+
+        challenges.append((starttime, increment))
+
+        return JsonResponse({"success": "challenge created successfully", "challenges":challenges})
 
     return render(request, 'website/gameselect.html')
+
+def user(request):
+    return render(request, '/website/user.html')
