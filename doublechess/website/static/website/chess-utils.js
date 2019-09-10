@@ -18,7 +18,8 @@ const colors = {
 
 const sides = {
     'king':0,
-    'queen':1
+    'queen':1,
+    'other':-1
 }
 
 // enum for castling states
@@ -35,10 +36,15 @@ const castlingState = {
 
 // Piece class, containing fields type and color.
 class Piece {
-    constructor(type, color = colors.none, side = sides.none){
+    constructor(type, color = colors.none, side = sides.other, id=0){
         this.type = type
         this.color = color
         this.side = side
+        this.id = id
+        
+        this.toString = () => {
+            return "Piece of color " + this.color + " and type " + typeIdToTypeName(this.type) 
+        }
     }
 }
 
@@ -52,6 +58,10 @@ class Square {
         this.equals = square => {
             return this.row === square.row && this.col === square.col
         }
+        this.toString = () => {
+            return "Square(" +  this.row + " " + this.col + ")"
+        }
+
     }
 }
 
@@ -64,6 +74,11 @@ class PossibleMoves {
 
         this.addMove = id => {
             this.moves.push(id)
+        }
+        this.removeMove = move => {
+            if(this.moves.includes(move)) {
+                this.moves.splice(this.moves.indexOf(move), 1)
+            }
         }
 
         this.addCapture = id => {
@@ -213,7 +228,7 @@ const copyChessboard = chessboard => {
     for(let row = 0; row < 8; row++){
         let newRow = []
         for(let col = 0; col < 8; col++){
-            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color, chessboard[row][col].side))
+            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color, chessboard[row][col].side, chessboard[row][col].id))
         }
         newChessboard.push(newRow)
     }
@@ -254,7 +269,17 @@ const getNewCastlingStates = () => {
     return [copyCastlingState(castlingState)]
 }
 
-
+const getPromotionID = (color, type) => {
+    let pieceCount = 0
+    for(let row of chessboardHistory[chessboardHistory.length - 1]) {
+        for(let piece of row) {
+            if(piece.color == color && piece.type == type) {
+                pieceCount ++
+            } 
+        } 
+    }
+    return pieceCount
+}
 
 /*
     Gets the move string, as to be displayed.
@@ -411,17 +436,19 @@ const getSameTypeSquares = (color, type, square, chessboard) => {
     squareTo: object, class:Square
     chessboard: 2D array with Pieces (objects)
 */
-const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboard, castlingState) => {
+const getAnotherPieceCanMoveString = (piece, squareFrom, squareTo, chessboardHistory, castlingStates, indexBoard, indexState) => {
+    let chessboard = chessboardHistory[indexBoard]
+    let castlingState = castlingStates[indexState]
 
     let string = ""
     let squares = getSameTypeSquares(piece.color, piece.type, squareFrom, chessboard)
 
-    if(squares.length === 0) {getSameTypeSquares
+    if(squares.length === 0) {
         return null
     }
     else {
         for(let square of squares) {
-            let pieceMoves = getAvailableMoves(chessboard, chessboard[square.row][square.col], square.row, square.col, castlingState)
+            let pieceMoves = getAvailableMoves(chessboardHistory, chessboard[square.row][square.col], square.row, square.col, castlingState, indexBoard)
             if(pieceMoves.moves.includes(squareTo.id) 
             || (pieceMoves.captures.includes(squareTo.id) && piece.type != types.pawn)) {
 
@@ -490,51 +517,123 @@ const isShortCastle = (piece, squareFrom, squareTo) => {
     col: number
     cs: castlingState object
 */
-const getAvailableMoves = (chessboard, piece, row, column, cs) => {
+const getAvailableMoves = (chessboardHistory, piece, row, column, castlingStatus, moveInFocus, normal=false) => {
+    let chessboard = chessboardHistory[moveInFocus]
+    let cs = castlingStatus[moveInFocus]
+
+    let returnMoves = null
     let color = piece.color
     if(color === colors.white){
         switch(piece.type) {
             case types.pawn:
-                return whitePawnMoves(chessboard, row, column)
+                returnMoves = whitePawnMoves(chessboard, row, column)
+                break
             
             case types.knight:
-                return whiteKnightMoves(chessboard, row, column)
+                returnMoves = whiteKnightMoves(chessboard, row, column)
+                break
 
             case types.bishop:
-                return whiteBishopMoves(chessboard, row, column)
+                returnMoves = whiteBishopMoves(chessboard, row, column)
+                break
             
             case types.rook:
-                return whiteRookMoves(chessboard, row, column)
+                returnMoves = whiteRookMoves(chessboard, row, column)
+                break
             
             case types.queen:
-                return whiteQueenMoves(chessboard, row, column)
+                returnMoves = whiteQueenMoves(chessboard, row, column)
+                break
             
             case types.king:
-                return whiteKingMoves(chessboard, row, column, cs)
+                returnMoves = whiteKingMoves(chessboard, row, column, cs)
+                break
         }
     }
     else{
         switch(piece.type) {
             case types.pawn:
-                return blackPawnMoves(chessboard, row, column)
+                returnMoves = blackPawnMoves(chessboard, row, column)
+                break
             
             case types.knight:
-                return blackKnightMoves(chessboard, row, column)
+                returnMoves = blackKnightMoves(chessboard, row, column)
+                break
 
             case types.bishop:
-                return blackBishopMoves(chessboard, row, column)
+                returnMoves = blackBishopMoves(chessboard, row, column)
+                break
             
             case types.rook:
-                return blackRookMoves(chessboard, row, column)
+                returnMoves = blackRookMoves(chessboard, row, column)
+                break
             
             case types.queen:
-                return blackQueenMoves(chessboard, row, column)
+                returnMoves = blackQueenMoves(chessboard, row, column)
+                break
             
             case types.king:
-                return blackKingMoves(chessboard, row, column, cs)
+                returnMoves = blackKingMoves(chessboard, row, column, cs)
+                break
         }
     }
+    // Removing non-state-changing move
+    if(normal == true && moveInFocus > 0) {
+        if(moveInFocus % 4 === 0 || moveInFocus % 4 === 2) {
+            let illegalMove = getIllegalMove(chessboardHistory, row, column)
+            if(illegalMove != null) {
+                returnMoves.removeMove(illegalMove)
+            }
+        }
+    }
+    return returnMoves
 }
+
+/*
+    Returns a string of coordinates that represent the illegal move
+    i.e. "06" or null if no illegal moves are attempted
+
+    chessboardhistory: Array of chessboards
+    row: number
+    col: number
+*/
+    
+const getIllegalMove = (chessboardHistory, row, col) => {
+    let illegalMove = null
+    let previousPosition = null
+    let capture = false
+    let previousState = chessboardHistory[chessboardHistory.length-2]
+    let currentState = chessboardHistory[chessboardHistory.length-1]
+    let pieceThatMoves = null
+    
+    // Loop through the chessboard and look for the differences from last state
+    // to next-to last state (two squares will be changed)
+    for(let i = 0; i < 8; i++) {
+        for(let j = 0; j < 8; j++) {
+            let piece1 = previousState[i][j]
+            let piece2 = currentState[i][j]
+            // Mismatch here
+            if(piece1.type != piece2.type || piece1.color != piece2.color) {
+                // This is the square that contains the piece's recent coordinates (aka squareTo)
+                if(previousState[i][j].type != types.none) {
+                    pieceThatMoves = previousState[i][j]
+                    previousPosition = i + "" + j
+                }
+
+            } 
+        } 
+    }
+    // Case of capture, then setting a boolean for allowing piece to return to previous coordinate
+    if(previousState[row][col].type != types.none && previousState[row][col].color != pieceThatMoves.color) {
+        capture = true
+    }
+    // Checking if the piece currently selected is the same piece that moved most recently, in which case i dissalow the return square.
+    if(currentState[row][col].type == pieceThatMoves.type && currentState[row][col].color == pieceThatMoves.color && currentState[row][col].id == pieceThatMoves.id && capture == false) {
+        illegalMove = previousPosition
+    }
+    return illegalMove
+}
+
 
 const whitePawnMoves = (chessboard, row, column) => {
     return pawnMoves(chessboard, row, column, colors.black)
@@ -678,7 +777,8 @@ const knightMoves = (chessboard, row, column, otherColor) => {
             else if(piece.color === otherColor) {
                 possibleMoves.addCapture(square.row + "" + square.col)
             }
-        }catch(error){}
+        }catch(error){
+        }
     }
     return possibleMoves
 }

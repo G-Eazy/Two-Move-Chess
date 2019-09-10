@@ -16,23 +16,23 @@ const modes = {
 
 
 // Global variables 
-var MODE = null
+let MODE = null
 
-var timer = null
-var possibleMoves = new PossibleMoves()
-var currentPiece = null
-var currentSquare = null
+let timer = null
+let possibleMoves = new PossibleMoves()
+let currentPiece = null
+let currentSquare = null
 
 // Allows you to change which move is being displayed
-var allowFocusChange = true
+let allowFocusChange = true
 
 // Allows you to make a move
-var allowMoves = true
+let allowMoves = true
 
 // current move being displayed. Should be an integer
-var moveInFocus = 0
+let moveInFocus = 0
 // current turn
-var turn = 1
+let turn = 1
 
 
 const chessboardHistory = getNewChessboardHistory()
@@ -84,7 +84,7 @@ const selectSquare = async id => {
         }
         // Square selected holds a piece
         else {
-            possibleMoves = getAvailableMoves(chessboardHistory[moveInFocus], currentPiece, currentSquare.row, currentSquare.col, castlingStates[moveInFocus])
+            possibleMoves = getAvailableMoves(chessboardHistory, currentPiece, currentSquare.row, currentSquare.col, castlingStates, moveInFocus, normal=true)
             highlightMoves(possibleMoves.moves)
             highlightCaptures(possibleMoves.captures)
         }
@@ -127,7 +127,7 @@ const selectSquare = async id => {
             isCapture = true
         }
 
-        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory[chessboardHistory.length-1], castlingStates[castlingStates.length-1])
+        let conditional = getAnotherPieceCanMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, chessboardHistory, castlingStates, chessboardHistory.length-1, castlingStates.length-1, moveInFocus)
         let shortCastle = isShortCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
         let longCastle = isLongCastle(lastCurrentPiece, lastCurrentPiece, currentSquare)
         let moveString = getMoveString(lastCurrentPiece, lastCurrentSquare, currentSquare, isCapture, conditional, promotionPiece, shortCastle, longCastle)
