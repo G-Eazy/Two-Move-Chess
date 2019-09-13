@@ -49,6 +49,7 @@ def playonline(request):
         
         if(starttime > 999 or starttime < 1):
             return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
+        return JsonResponse({"success":"Challenge made successfully!", "challenges":challenges})
 
     return render(request, 'website/gameselect.html')
 
