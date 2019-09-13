@@ -151,8 +151,8 @@ const getPromotionType = color => { return new Promise((resolve, reject) => {
 
     container.appendChild(popup)
 
-    let returnValues = [new Piece(types.queen, color), new Piece(types.rook, color),
-                        new Piece(types.bishop, color), new Piece(types.knight, color)]
+    let returnValues = [new Piece(types.queen, color, sides.none, getPromotionID(color, types.queen)), new Piece(types.rook, color, sides.none, getPromotionID(color, types.rook)),
+                        new Piece(types.bishop, color, sides.none, getPromotionID(color, types.bishop)), new Piece(types.knight, color, sides.none, getPromotionID(color, types.knight))]
 
     for(let i = 0; i < 4; i++){
         let piece = document.createElement("div")
