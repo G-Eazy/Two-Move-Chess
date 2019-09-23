@@ -36,7 +36,7 @@ const castlingState = {
 
 // Piece class, containing fields type and color.
 class Piece {
-    constructor(type, color = colors.none, side = sides.other, id=0){
+    constructor(type, color = colors.none, id='0', side = sides.other){
         this.type = type
         this.color = color
         this.side = side
@@ -163,18 +163,16 @@ class Timer {
 // constants 
 
 const initialChessboard = [
-    [new Piece(4,1,1),new Piece(2,1), new Piece(3,1), new Piece(5,1),
-        new Piece(6,1), new Piece(3,1), new Piece(2,1),new Piece(4,1,0)],
-    [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1),
-        new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
+    [new Piece(4,1,'bqr',1),new Piece(2,1,'bqn'), new Piece(3,1,'bqb'), new Piece(5,1,'bq'),
+        new Piece(6,1,'bk'), new Piece(3,1,'bkb'), new Piece(2,1,'bkn'),new Piece(4,1,'bkr',0)],
+    [new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1), new Piece(1,1),new Piece(1,1),new Piece(1,1),new Piece(1,1)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
     [new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0),new Piece(0)],
-    [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0),
-        new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
-    [new Piece(4,0,1),new Piece(2,0), new Piece(3,0), new Piece(5,0),
-        new Piece(6,0), new Piece(3,0), new Piece(2,0),new Piece(4,0,0)]
+    [new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0), new Piece(1,0),new Piece(1,0),new Piece(1,0),new Piece(1,0)],
+    [new Piece(4,0,'wqr',1),new Piece(2,0,'wqn'), new Piece(3,0,'wqb'), new Piece(5,0,'wq'),
+        new Piece(6,0,'wk'), new Piece(3,0,'wkb'), new Piece(2,0,'wkn'),new Piece(4,0,'wkr',0)]
 ]
 
 /*
@@ -228,7 +226,7 @@ const copyChessboard = chessboard => {
     for(let row = 0; row < 8; row++){
         let newRow = []
         for(let col = 0; col < 8; col++){
-            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color, chessboard[row][col].side, chessboard[row][col].id))
+            newRow.push(new Piece(chessboard[row][col].type, chessboard[row][col].color, chessboard[row][col].id, chessboard[row][col].side))
         }
         newChessboard.push(newRow)
     }
@@ -580,7 +578,7 @@ const getAvailableMoves = (chessboardHistory, piece, row, column, castlingStatus
     // Removing non-state-changing move
     if(normal == true && moveInFocus > 0) {
         if(moveInFocus % 4 === 0 || moveInFocus % 4 === 2) {
-            let illegalMove = getIllegalMove(chessboardHistory, row, column)
+            let illegalMove = getIllegalMove(chessboardHistory, row, column, moveInFocus)
             if(illegalMove != null) {
                 returnMoves.removeMove(illegalMove)
             }
@@ -598,12 +596,13 @@ const getAvailableMoves = (chessboardHistory, piece, row, column, castlingStatus
     col: number
 */
     
-const getIllegalMove = (chessboardHistory, row, col) => {
+
+const getIllegalMove = (chessboardHistory, row, col, moveInFocus) => {
     let illegalMove = null
     let previousPosition = null
     let capture = false
-    let previousState = chessboardHistory[chessboardHistory.length-2]
-    let currentState = chessboardHistory[chessboardHistory.length-1]
+    let previousState = chessboardHistory[moveInFocus-1]
+    let currentState = chessboardHistory[moveInFocus]
     let pieceThatMoves = null
     
     // Loop through the chessboard and look for the differences from last state
@@ -613,27 +612,34 @@ const getIllegalMove = (chessboardHistory, row, col) => {
             let piece1 = previousState[i][j]
             let piece2 = currentState[i][j]
             // Mismatch here
-            if(piece1.type != piece2.type || piece1.color != piece2.color) {
+            if(piece1.id != piece2.id) { 
+                console.log("mismatch at " + i + " " + j)
+                console.log("p1:" + piece1.id)
+                console.log("p2:" + piece2.id)
                 // This is the square that contains the piece's recent coordinates (aka squareTo)
                 if(previousState[i][j].type != types.none) {
                     pieceThatMoves = previousState[i][j]
                     previousPosition = i + "" + j
+                    console.log("prev pos: " + previousPosition)
                 }
 
             } 
         } 
     }
-    // Case of capture, then setting a boolean for allowing piece to return to previous coordinate
-    if(previousState[row][col].type != types.none && previousState[row][col].color != pieceThatMoves.color) {
-        capture = true
-    }
-    // Checking if the piece currently selected is the same piece that moved most recently, in which case i dissalow the return square.
-    if(currentState[row][col].type == pieceThatMoves.type && currentState[row][col].color == pieceThatMoves.color && currentState[row][col].id == pieceThatMoves.id && capture == false) {
-        illegalMove = previousPosition
+    if(pieceThatMoves != null) {
+        // Case of capture, then setting a boolean for allowing piece to return to previous coordinate
+        if(previousState[row][col].type != types.none && previousState[row][col].color != pieceThatMoves.color) {
+            console.log("capture")
+            capture = true
+        }
+        // Checking if the piece currently selected is the same piece that moved most recently, in which case i disallow the return square.
+        if(currentState[row][col].type == pieceThatMoves.type && currentState[row][col].color == pieceThatMoves.color && currentState[row][col].id == pieceThatMoves.id && capture == false) {
+            illegalMove = previousPosition
+            console.log("illegal move at: " + illegalMove)
+        }
     }
     return illegalMove
 }
-
 
 const whitePawnMoves = (chessboard, row, column) => {
     return pawnMoves(chessboard, row, column, colors.black)
