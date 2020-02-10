@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from django.contrib.auth import logout
+from .models import Profile, User
+
 import json
 from django.http import JsonResponse
 from django.contrib.auth.forms import AuthenticationForm
@@ -24,6 +27,12 @@ def twoplayer(request):
 def analysis(request):
     context = {}
     return render(request, 'website/analysis.html', context)
+
+def players(request):
+    players_db = User.objects.all()
+    context = {'players': players_db}
+
+    return render(request, 'website/players.html', context)
 
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")
@@ -90,7 +99,34 @@ def login(request):
 
     return render(request, 'website/login.html', context)
 
+def my_logout(request):
+    print("Håkon inserts code here", flush=True)
+    logout(request) 
+    return render(request, 'website/logout.html')
+
+
+
 @login_required
 def profile(request):
-    return render(request, 'website/profile.html')
+    if request.method == 'POST':
+        #u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES)
+        #if u_form.is_valid() and p_form.is_valid():
+        if p_form.is_valid():
+            #u_form.save()
+            p_form.save()
+            messages.success(request, f'Your account has been updated.')
+            return redirect('profile')
+    else:
+        #u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm()
 
+
+    context = {
+        #'u_form': u_form,
+        'p_form': p_form
+    }
+    return render(request, 'website/profile.html', context)
+
+def settings(request):
+    return render(request, 'website/settings.html')
