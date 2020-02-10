@@ -1,22 +1,30 @@
 {% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+        <link href='{% static "website/tutorial.css"%}' rel='stylesheet'>
+{% endblock %}
 
 {% block content %}
 
-<div style="width: 200px; height: 300px; border: 1px solid darkgreen;">
-    <div class="move-display-sidebar">
-        <div class="sidebar-item">1</div>
-        <div class="sidebar-item">2</div>
-        <div class="sidebar-item">3</div>
-        <div class="sidebar-item">4</div>
-        <div class="sidebar-item">5</div>
-        <div class="sidebar-item">6</div>
-        <div class="sidebar-item">7</div>
-        <div class="sidebar-item">8</div>
-        <div class="sidebar-item">9</div>
-        <div class="sidebar-item">10</div>
-        <div class="sidebar-item">11</div>
-        <div class="sidebar-item">12</div>
-    </div>
-</div>
+<h1>Double chess tutorial</h1>
+<br>
+<h2>Game rules</h2>
+
+<p class="ruleset">
+    <b> Piece movement: </b>
+    Piece movement is the same as in regular chess. 
+    <br><br>
+    <b>Turns:</b>
+    White begins with one move. Then black answers with two moves, followed by whites two moves. After this the game continues with two moves each turn. 
+    <br><br>
+
+    <b>End of the game:</b>
+    If the king is captured, the game is over.<br>
+    Otherwise the game ends with a timeout, resignation or draw offer.
+    <br><br>
+    <b>Other rules:</b>
+    There is no concept of a 'hard pin' or being in 'check' in this game.<br>
+</p>
 
 {% endblock %}
