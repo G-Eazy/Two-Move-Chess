@@ -4,7 +4,6 @@ from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth import logout
 from .models import Profile, User
-
 import json
 from django.http import JsonResponse
 from django.contrib.auth.forms import AuthenticationForm
@@ -43,8 +42,8 @@ def security(request):
 
 def playonline(request):
 
-    print("playonline request happened", flush=True)
-
+    # Tror alt dette kan fjernes
+    '''
     if request.method == 'POST':
         data = request.POST.dict()
         starttime = data["starttime"]
@@ -59,7 +58,7 @@ def playonline(request):
         if(starttime > 999 or starttime < 1):
             return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
         return JsonResponse({"success":"Challenge made successfully!", "challenges":challenges})
-
+    '''
     return render(request, 'website/gameselect.html')
 
 def register(request):
@@ -92,7 +91,6 @@ def login(request):
             form = AuthenticationForm()
             login_error = "Invalid username or password"
             context = {'login_error':login_error, 'form':form}
-
 
     else:
         form = AuthenticationForm()
