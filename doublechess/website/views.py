@@ -4,6 +4,7 @@ from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth import logout
 from .models import Profile, User
+
 import json
 from django.http import JsonResponse
 from django.contrib.auth.forms import AuthenticationForm
@@ -33,6 +34,21 @@ def players(request):
 
     return render(request, 'website/players.html', context)
 
+def users(request, username_in):
+    context = {
+        'profile_name' : username_in,
+    }
+    all_users = User.objects.all()
+    all_usernames = []
+    for user in all_users:
+        all_usernames.append(user.username)
+    if username_in in all_usernames:
+        context['profile_pic'] = User.objects.filter(username=username_in).first().profile.image.url
+        return render(request, 'website/player.html', context) 
+
+    else:
+        return render(request, 'website/player_not_found.html', context) 
+
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")
 
@@ -42,8 +58,8 @@ def security(request):
 
 def playonline(request):
 
-    # Tror alt dette kan fjernes
-    '''
+    print("playonline request happened", flush=True)
+
     if request.method == 'POST':
         data = request.POST.dict()
         starttime = data["starttime"]
@@ -57,8 +73,7 @@ def playonline(request):
         
         if(starttime > 999 or starttime < 1):
             return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
-        return JsonResponse({"success":"Challenge made successfully!", "challenges":challenges})
-    '''
+
     return render(request, 'website/gameselect.html')
 
 def register(request):
@@ -92,6 +107,7 @@ def login(request):
             login_error = "Invalid username or password"
             context = {'login_error':login_error, 'form':form}
 
+
     else:
         form = AuthenticationForm()
         context = {'form':form}
@@ -118,7 +134,7 @@ def profile(request):
             return redirect('profile')
     else:
         #u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm()
+        p_form = ProfileUpdateForm(request.POST, request.FILES)
 
 
     context = {

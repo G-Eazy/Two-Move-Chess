@@ -20,7 +20,7 @@ class Profile(models.Model):
         return f'{self.user.username} Profile'
 
     # Overwrite models.Model save to scale images
-    def save(self, *args, **kwargs):
+    def save2(self, *args, **kwargs):
         super(Profile, self).save(*args, **kwargs)
         
         img = Image.open(self.image.path)

@@ -12,6 +12,7 @@ urlpatterns = [
     path('twoplayer/', views.twoplayer, name='twoplayer'),
     path('analysis/', views.analysis, name='analysis'),
     path('players/', views.players, name='players'),
+    path('user/<str:username_in>/', views.users, name='users'),
     path('.well-known/security.txt', views.security, name='security'),
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='website/login.html'), name='login'),

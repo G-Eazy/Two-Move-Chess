@@ -1,0 +1,19 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<!-- might want to not reuse code here, but fetch from profile.html-->
+<h1>User profile of {{ profile_name }}</h1>
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" src= {{ profile_pic }}>
+            <div class="media-body">
+                <h2 class="account-heading"> {{ profile_name }} </h2>
+                <p class="text-secondary"> other text here (rating, stats)</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
