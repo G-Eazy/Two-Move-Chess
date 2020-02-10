@@ -12,7 +12,6 @@ class User2(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    #rating?
     image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     
 
@@ -20,7 +19,7 @@ class Profile(models.Model):
         return f'{self.user.username} Profile'
 
     # Overwrite models.Model save to scale images
-    def save2(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
         super(Profile, self).save(*args, **kwargs)
         
         img = Image.open(self.image.path)
