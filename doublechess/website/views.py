@@ -8,8 +8,7 @@ import json
 from django.http import JsonResponse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-
-challenges = []
+from .consumers import connections
 
 def homepage(request):
     context = {}
@@ -41,24 +40,6 @@ def security(request):
     return render(request, 'website/security.txt')
 
 def playonline(request):
-
-    # Tror alt dette kan fjernes
-    '''
-    if request.method == 'POST':
-        data = request.POST.dict()
-        starttime = data["starttime"]
-        increment = data["increment"]
-        print(data, flush=True)
-        try:
-            starttime = int(starttime)
-            increment = int(increment)
-        except ValueError:
-            return JsonResponse({"error": "Start time and increment have to be integers!"})
-        
-        if(starttime > 999 or starttime < 1):
-            return JsonResponse({"error": "Start time has to be between 1 and 999 minutes!" })
-        return JsonResponse({"success":"Challenge made successfully!", "challenges":challenges})
-    '''
     return render(request, 'website/gameselect.html')
 
 def register(request):
@@ -99,7 +80,7 @@ def login(request):
     return render(request, 'website/login.html', context)
 
 def my_logout(request):
-    print("Håkon inserts code here", flush=True)
+    connections.logout(request.user.username)
     logout(request) 
     return render(request, 'website/logout.html')
 

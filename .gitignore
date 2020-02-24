@@ -12,3 +12,6 @@ greg_*
 
 # håkons files to ignore
 haak_*
+
+# vscode
+.vscode

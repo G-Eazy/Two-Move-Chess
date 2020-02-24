@@ -32,7 +32,7 @@ class GameplayConsumer(SyncConsumer):
         print(f"Gameplay disconnect: {self.username}", flush=True)
 
         if self.username != 'AnonymousUser':
-            connections.remove_gameplay_connection(self)
+            connections.remove_gameplay_connection(self.username)
 
         raise StopConsumer
 
@@ -68,7 +68,7 @@ class PlayOnlineConsumer(SyncConsumer):
         print(f"PlayOnline disconnect: {self.username}", flush=True)
 
         if self.username != 'AnonymousUser':
-            connections.remove_playonline_connection(self)
+            connections.remove_playonline_connection(self.username)
 
         raise StopConsumer
 
@@ -101,7 +101,7 @@ class GenericConsumer(SyncConsumer):
         print(f"Generic disconnect: {self.username}", flush=True)
 
         if self.username != 'AnonymousUser':
-            connections.remove_generic_connection(self)
+            connections.remove_generic_connection(self.username)
 
         raise StopConsumer
 
@@ -159,9 +159,7 @@ class Connections:
                 return
         
         self.challenges[username] = {"starttime": starttime, "increment": increment}
-
-        for user in self.playonline_conns.values():
-            self.sendChallenges(user)
+        self.sendChallengesToAll()
 
         self.playonline_conns[username].send({
             "type": "websocket.send",
@@ -170,6 +168,11 @@ class Connections:
                 "text": "Challenge successfully created!"
             })
         })
+
+
+    def sendChallengesToAll(self):
+        for user in self.playonline_conns.values():
+            self.sendChallenges(user)
 
     # user: user, not key
     def sendChallenges(self, user):
@@ -181,16 +184,27 @@ class Connections:
                 })
         })
 
-    def remove_gameplay_connection(self, consumer):
-        del self.gameplay_conns[consumer.username]
+    def remove_gameplay_connection(self, username):
+        if username in self.gameplay_conns:
+            del self.gameplay_conns[username]
 
-    def remove_playonline_connection(self, consumer):
-        del self.playonline_conns[consumer.username]
+    def remove_playonline_connection(self, username):
+        if username in self.playonline_conns:
+            del self.playonline_conns[username]
 
-    def remove_generic_connection(self, consumer):
-        del self.generic_conns[consumer.username]
+    def remove_generic_connection(self, username):
+        if username in self.generic_conns:
+            del self.generic_conns[username]
 
+    def remove_challenge(self, username):
+        if username in self.challenges:
+            del self.challenges[username]
+            self.sendChallengesToAll()
 
-    
+    def logout(self, username):
+        self.remove_gameplay_connection(username)
+        self.remove_generic_connection(username)
+        self.remove_playonline_connection(username)
+        self.remove_challenge(username)
 
 connections = Connections()
