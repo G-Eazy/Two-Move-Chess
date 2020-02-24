@@ -1,0 +1,14 @@
+
+.player-tab {
+    width: 30%;
+    padding: 30px; 
+    background-color: #F7F7FF;
+}
+
+.player-tab-th {
+    height: 25px;
+}
+
+.player-tab-td {
+    height: 25px;
+}

@@ -3,18 +3,19 @@
 {% load crispy_forms_tags %}
 
 {% block head %}
+<link href='{% static "website/profiles.css"%}' rel='stylesheet'>
 {% endblock %}
 
 {% block content %}
 <h1>Players</h1>
 
-<table>
+<table class='player-tab'>
     <tr>
-        <th>Field 1</th>
+        <th class='player-tab-th'>Usernames</th>
     </tr>
     {% for user in players %}
     <tr>
-        <td>{{ user.username }}</td>
+        <td class='player-tab-td' onclick='location.href = "{% url "users" user.username %}"'> {{ user.username }}</td>
     </tr>
     {% endfor %}
 </table>

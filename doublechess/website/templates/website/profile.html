@@ -5,25 +5,22 @@
 {% block head %}
 {% endblock %}
 
+
 {% block content %}
+<!-- this loads base twice but has little effect-->
+{% include 'website/player.html' %}
 
-    <div class="content-section">
-        <div class="media">
-            <img class="rounded-circle account-img" src= {{ user.profile.image.url }}>
-            <div class="media-body">
-                <h2 class="account-heading"> {{ user.username}} </h2>
-                <p class="text-secondary"> other text here (rating, stats)</p>
-            </div>
-                <br>
-                <form method='POST' enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <h2>Profile info</h2>
-                    <br>
-                    {{ u_form|crispy  }}
-                    {{ p_form|crispy  }}
-                    <br>
-                    <button class='submit-button'>Update</button>
-                </form>
-        </div>
+    <div class="private-content">
+        <form method='POST' enctype="multipart/form-data">
+            {% csrf_token %}
+            <h2>Profile info</h2>
+            <br>
+            {{ u_form|crispy  }}
+            {{ p_form|crispy  }}
+            <br>
+            <button class='submit-button'>Update</button>
+        </form>
 
+    </div>
+    
 {% endblock %}

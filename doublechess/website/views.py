@@ -38,9 +38,8 @@ def users(request, username_in):
         'profile_name' : username_in,
     }
     all_users = User.objects.all()
-    all_usernames = []
-    for user in all_users:
-        all_usernames.append(user.username)
+    all_usernames = [user.username for user in all_users]
+    
     if username_in in all_usernames:
         context['profile_pic'] = User.objects.filter(username=username_in).first().profile.image.url
         return render(request, 'website/player.html', context) 
@@ -119,7 +118,9 @@ def profile(request):
 
     context = {
         'u_form': u_form,
-        'p_form': p_form
+        'p_form': p_form,
+        'profile_pic': User.objects.filter(username=request.user).first().profile.image.url,
+        'profile_name' : request.user
     }
     return render(request, 'website/profile.html', context)
 
