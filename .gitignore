@@ -4,7 +4,7 @@
 # My own files i want to ignore
 *.ignore
 
-#django generated file
+# database file
 *.sqlite3
 
 # gregers files to ignore
