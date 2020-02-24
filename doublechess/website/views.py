@@ -4,6 +4,7 @@ from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth import logout
 from .models import Profile, User
+
 import json
 from django.http import JsonResponse
 from django.contrib.auth.forms import AuthenticationForm
@@ -31,6 +32,21 @@ def players(request):
     context = {'players': players_db}
 
     return render(request, 'website/players.html', context)
+
+def users(request, username_in):
+    context = {
+        'profile_name' : username_in,
+    }
+    all_users = User.objects.all()
+    all_usernames = []
+    for user in all_users:
+        all_usernames.append(user.username)
+    if username_in in all_usernames:
+        context['profile_pic'] = User.objects.filter(username=username_in).first().profile.image.url
+        return render(request, 'website/player.html', context) 
+
+    else:
+        return render(request, 'website/player_not_found.html', context) 
 
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")
@@ -73,6 +89,7 @@ def login(request):
             login_error = "Invalid username or password"
             context = {'login_error':login_error, 'form':form}
 
+
     else:
         form = AuthenticationForm()
         context = {'form':form}
@@ -89,21 +106,19 @@ def my_logout(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        #u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST, request.FILES)
-        #if u_form.is_valid() and p_form.is_valid():
-        if p_form.is_valid():
-            #u_form.save()
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
             p_form.save()
             messages.success(request, f'Your account has been updated.')
             return redirect('profile')
     else:
-        #u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdateForm()
-
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
 
     context = {
-        #'u_form': u_form,
+        'u_form': u_form,
         'p_form': p_form
     }
     return render(request, 'website/profile.html', context)

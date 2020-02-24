@@ -40,7 +40,11 @@
     </div>
 
     <div class='main-content'>
-
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
     {% block content %}
     {% endblock %}
 
