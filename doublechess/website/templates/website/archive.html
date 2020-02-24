@@ -1,0 +1,31 @@
+{% extends 'website/base.html'%}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h1>Welcome to the archive!</h1>
+
+
+<div class='query-container'>
+    <form method='POST' class='query-container-form'>
+        {% csrf_token %}
+        <fieldset>
+            <p>
+            <label>Player</label>
+            <select name='query-form' id = "myList">
+                {% for user in users %}
+                <option value = "{{ user.username }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+            </p>
+        </fieldset>
+        <button class='submit-query-button'>Search</button>
+    </form>
+</div>
+
+
+{{ games_queried }}
+
+{% endblock %}

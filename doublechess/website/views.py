@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth import logout
-from .models import Profile, User
+from .models import Profile, User, Game
 
 import json
 from django.http import JsonResponse
@@ -46,6 +46,17 @@ def users(request, username_in):
 
     else:
         return render(request, 'website/player_not_found.html', context) 
+
+def archive(request):
+    context = {
+        "users" : User.objects.all()
+    }
+    if request.method == 'POST':
+
+        query_result = Game.objects.filter(white_player=request.POST['query-form'])
+        context['games_queried'] = query_result
+    
+    return render(request, 'website/archive.html', context)
 
 def debug(request):
     return HttpResponse("<h1>DEBUG</h1>")

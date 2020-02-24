@@ -13,13 +13,14 @@ urlpatterns = [
     path('analysis/', views.analysis, name='analysis'),
     path('players/', views.players, name='players'),
     path('user/<str:username_in>/', views.users, name='users'),
+    path('archive/', views.archive, name='archive'),
     path('.well-known/security.txt', views.security, name='security'),
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='website/login.html'), name='login'),
     path('logout/', views.my_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     path('settings/', views.settings, name='settings'),
-    path('playonline/', views.playonline, name="playonline"),
+    path('playonline/', views.playonline, name="playonline")
 
 ]
 
