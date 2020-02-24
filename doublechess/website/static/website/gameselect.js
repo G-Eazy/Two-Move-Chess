@@ -1,3 +1,5 @@
+// lol
+
 const renderChallenges = challenges => {
     container = document.getElementsByClassName("request-display-body")[0]
     sub_container = document.createElement("div")
